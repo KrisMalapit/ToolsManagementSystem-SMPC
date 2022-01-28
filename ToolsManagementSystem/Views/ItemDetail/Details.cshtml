@@ -1,0 +1,138 @@
+﻿@model ToolsManagementSystem.Models.ItemDetail
+
+@{
+    ViewBag.Title = "Details";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>ItemDetail</h4>
+	<hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Items.ItemCode)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Items.ItemCode)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.FACardNo)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.FACardNo)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.PropertyNo)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.PropertyNo)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Description)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Description)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Description2)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Description2)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.PO)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.PO)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.SerialNo)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.SerialNo)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Qty)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Qty)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.ModelType)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.ModelType)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.UoM)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.UoM)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.UnitCost)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.UnitCost)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.ShelfNo)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.ShelfNo)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.DateAdjusted)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.DateAdjusted)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.ToolStatus)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.ToolStatus)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Notes)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Notes)
+        </dd>
+
+    </dl>
+</div>
+<p>
+    @Html.ActionLink("Edit", "Edit", new { id = Model.id }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>

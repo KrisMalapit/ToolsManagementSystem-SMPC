@@ -1,0 +1,417 @@
+﻿@model PagedList.IPagedList<ToolsManagementSystem.Models.View_Model.UserViewModel>
+@using PagedList.Mvc;
+
+@{
+    ViewBag.Title = "UserProfiles";
+}
+
+
+<div class="col-md-4 ">
+    <div class="form-group" style="margin-top: 10px;">
+
+        @Html.Label("Domain", new { @class = "custom_column-label col-md-2" })
+        <div class="col-md-10">
+            @Html.DropDownList("Domain",
+                     new SelectList(Enum.GetValues(typeof(ToolsManagementSystem.Models.Domain)), "SEMCALACA"), new { @class = "form-control" })
+        </div>
+
+    </div>
+</div>
+
+
+<div class="modal fade" id="PermissionModal" role="dialog" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Roles / Permission</h4>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-success" id="alertbox-transfer" style="display: none">
+                    <strong>Success!</strong> Transaction save.
+                </div>
+                <div class="alert alert-danger" id="alertbox-error-transfer" style="display: none">
+                    <strong>Failed!</strong> Oops! Something went wrong .
+                </div>
+                <div class="form-horizontal">
+                    <div class="form-group">
+                        @Html.Label("Name", new { @class = "custom_column-label col-md-2" })
+                        <div class="col-md-4 issuancetool">
+                            @Html.TextBox("Name", null, new { @class = "form-control text-center", @readonly = "readonly" })
+                        </div>
+                        @Html.Label("UserName", new { @class = "custom_column-label col-md-2" })
+                        <div class="col-md-4">
+                            @Html.TextBox("UserName", null, new { @class = "form-control text-center", @readonly = "readonly" })
+                        </div>
+
+                    </div>
+                    <div class="form-group">
+                        @Html.Label("Roles", new { @class = "col-md-2 custom_column-label" })
+                        <div class="col-md-4">
+                            @Html.DropDownList("Roles",
+                                        new SelectList(Enum.GetValues(typeof(ToolsManagementSystem.Models.View_Model.UserRoles)), "Admin"), new { @class = "form-control" })
+                        </div>
+                        @Html.Label("UserID", new { @class = "custom_column-label col-md-2" })
+                        <div class="col-md-4">
+                            @Html.TextBox("UserID", null, new { @class = "form-control text-center", @readonly = "readonly" })
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        @Html.Label("Departments", new { @class = "custom_control-label col-md-2" })
+                        <div class="col-md-4">
+                            <select id="DeptID" name="DeptID">
+                                <option value=""></option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            @*<button id="btnAdd" class="btn btn-default" type="button">Add Dept</button>*@
+                            <button class="btn btn-success btnNewRow" id="btnAdd" type="button" aria-expanded="false">
+                                <i class="glyphicon glyphicon-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin: 5px;">
+                        <table  id="tableDepartment" class="table table-bordered table-striped" style="clear: both"
+                            data-toggle="table"
+                            data-url="@Url.Action("GetDepartment", "Department", new { t = "t" })"
+                            data-side-pagination="server"       
+                            data-page-list="[5, 10, 20, 50, 100, 200]"
+                            data-height="auto"
+                            data-pagination="true" 
+                            data-id-field="id">
+                            <thead>
+                                <tr>
+                                    <th data-field="state" data-checkbox="true" data-visible="false"></th>
+                                    <th data-field="id" data-visible="false">id</th>
+                                    <th data-field="DepartmentID" data-halign="center" data-visible="false">ID</th>
+                                    <th data-field="Name" data-halign="center">Name</th>
+                                    <th data-field="action" data-formatter="actionFormatter2" data-align="left" data-width="151px" data-halign="center">Action</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" id="btnSave">Save</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+
+
+        </div>
+
+    </div>
+</div>
+
+<table  id="table" class="table table-bordered table-striped" style="clear: both"
+                        data-toggle="table"
+                        data-search ="true"
+                        data-url="@Url.Action("UserList", "User")"
+                        data-side-pagination="server"   
+                        data-page-size="10"    
+                        data-page-list="[100,500,1000]"
+                        data-toolbar="#toolbar"
+                        data-height="auto"
+                        data-show-columns="true" 
+                        data-show-toggle="true"
+                        data-pagination="true" 
+                        data-id-field="id"
+                        data-show-refresh="true"
+    >
+    <thead>
+
+        <tr>
+            <th data-field="state" data-checkbox="true" data-visible="false"></th>
+            <th data-field="id" data-visible="false">id</th>
+            <th data-field="sysid" data-visible="false">sysid</th>
+            <th data-field="Name" data-halign="center">Name</th>
+            <th data-field="Firstname" data-halign="center">First Name</th>
+            <th data-field="Lastname" data-halign="center">Last Name</th>
+            <th data-field="mail" data-halign="center">Mail</th>
+            <th data-field="domain" data-halign="center">Domain</th>
+            <th data-field="Username" data-halign="center" class="text-left">User Name</th>
+            <th data-field="action" data-formatter="actionFormatter" data-align="left" data-width="200px" data-halign="center">Action</th>
+        </tr>
+
+    </thead>
+    <tbody class="searchable">
+    </tbody>
+</table>
+
+
+<script>
+    var id = 0;
+    var userid = 0;
+    $table = $('#table');
+    $table2 = $('#tableDepartment');
+    $("#Roles").select2({
+        width: '100%',
+        theme: 'bootstrap'
+    })
+    $("#Domain").select2({
+        width: '100%',
+        theme: 'bootstrap'
+    })
+
+
+    $("#DeptID").select2({
+        width: '100%',
+        theme: 'bootstrap',
+        minimumInputLength: 1,
+        placeholder: '',
+        allowClear: true,
+        ajax: {
+            url: "@Url.Action("SearchDepartment", "Department")",
+            dataType: 'json',
+            delay: 300,
+            data: function (params) {
+                return {
+                    q: params.term, // search term
+                    page: params.page
+                };
+            },
+            processResults: function (data, page) {
+                return {
+                    results: data.items
+                };
+            },
+            cache: false
+        }
+    }).val('1').trigger('change');
+
+    function actionFormatter(cellvalue, options, rowObject) {
+        $Perm = '<button class="btn btn-default" title="Permission" type="button" style="font-size: 12px; width: 95px; margin-right: 5px" onclick="PermissionUser(\'' + options.id + '\',\'' + options.Name + '\',\'' + options.domain + '\\' + options.Username + '\',\'' + options.Roles + '\')">' +
+                  '<i class="glyphicon glyphicon-edit"></i>Permission</button>';
+        if (options.status == "Enabled") {
+            $Stat = '<button class="btn btn-danger" title="Status" type="button" style="  font-size: 12px; width: 80px"  onclick="DisableUser(\'' + options.sysid + '\')">' +
+              '<i class="glyphicon glyphicon-user"></i>Disable</button>';
+        }
+        else {
+            $Stat = '<button class="btn btn-success" title="Status" type="button" style="  font-size: 12px; width: 80px" onclick="EnableUser(\'' + options.Name + '\',\'' + options.Firstname + '\',\'' + options.Lastname + '\',\'' + options.mail + '\',\'' + options.domain + '\',\'' + options.Username + '\',\'' + options.sysid + '\')" >' +
+              '<i class="glyphicon glyphicon-user"></i> Enable</button>';
+        }
+        return $Perm + $Stat;
+    };
+    function actionFormatter2(cellvalue, options, rowObject) {
+
+        $Stat = '<button class="btn btn-danger" title="Status" type="button" style="  font-size: 12px; width: 100%"  onclick="RemoveDepartment(\'' + options.id + '\')">' +
+          '<i class="glyphicon glyphicon-minus"></i></button>';
+
+        return $Stat;
+    };
+    function PermissionUser(id, name, username, roles) {
+
+        userid = id == 0 ? 0 : id;
+        if (userid != 0) {
+            $("#Roles").val("").trigger('change');
+
+            $('#Name').val(name);
+            $('#UserName').val(username);
+            $('#PermissionModal').modal('show');
+            $("#Roles").val(roles).trigger('change');
+            $('#UserID').val(userid);
+
+            $table2.bootstrapTable('refresh', {
+                url: "@Url.Action("GetDepartment", "Department", new { t = "t" })" + "&userid=" + $('#UserID').val()
+            });
+
+
+        } else {
+            alert("Enable user first before modifying permission");
+        }
+
+
+    }
+    function RemoveDepartment(id) {
+
+        if (confirm('Are you sure you want to remove department for this user?')) {
+            $.ajax({
+                url: "@Url.Action("RemoveDepartment", "Department")",
+                 method: "POST",
+                 dataType: "json",
+                 data: {
+                     'id': id,
+
+                 }
+                            , success: function (responsedata) {
+                                if (responsedata.status == "success") {
+                                    //$.notify("<strong>Success</strong>. Status change.", { type: 'success', placement: { align: 'center' } });
+                                    $table2.bootstrapTable('refresh', {
+                                        url: "@Url.Action("GetDepartment", "Department", new { t = "t" })" + "&userid=" + $('#UserID').val()
+                                    });
+                                } else {
+                                    $.notify("<strong>Oops!</strong>. Something went wrong.", { type: 'danger', placement: { align: 'center' } });
+                                };
+                            }
+             });
+                    }
+                }
+                function EnableUser(name, firstname, lastname, mail, domain, username, sysid) {
+
+                    if (confirm('Are you sure you want to enable user?')) {
+                        $.ajax({
+                            url: "@Url.Action("EnableDisableUser", "User", new { status = "Enabled" })",
+                            method: "POST",
+                            dataType: "json",
+                            data: {
+                                'sysid': sysid,
+                                'Username': username,
+                                'Name': name,
+                                'Lastname': lastname,
+                                'Firstname': firstname,
+                                'mail': mail,
+                                'domain': domain,
+                                'Roles': "User"
+                            }
+                            , success: function (responsedata) {
+                                if (responsedata.status == "success") {
+                                    $.notify("<strong>Success</strong>. Status change.", { type: 'success', placement: { align: 'center' } });
+                                    $table.bootstrapTable('refresh', {
+                                        url: "@Url.Action("UserList", "User", new { transtype = "userlist" })" + "&domain=" + $('#Domain').val()
+                                    });
+                                } else {
+                                    $.notify("<strong>Oops!</strong>. Something went wrong.", { type: 'danger', placement: { align: 'center' } });
+                                };
+                            }
+                        });
+                    }
+
+
+
+                }
+
+                function DisableUser(sysid) {
+
+                    if (confirm('Are you sure you want to disable user?')) {
+                        $.ajax({
+                            url: "@Url.Action("EnableDisableUser", "User", new { status = "Disabled" })",
+                            method: "POST",
+                            dataType: "json",
+                            data: {
+                                'sysid': sysid,
+
+                            }
+                            , success: function (responsedata) {
+                                if (responsedata.status == "success") {
+                                    $.notify("<strong>Success</strong>. Status change.", { type: 'success', placement: { align: 'center' } });
+                                    $table.bootstrapTable('refresh', {
+                                        url: "@Url.Action("UserList", "User", new { transtype = "userlist" })" + "&domain=" + $('#Domain').val()
+                                    });
+                                } else {
+                                    $.notify("<strong>Oops!</strong>. Something went wrong.", { type: 'danger', placement: { align: 'center' } });
+                                };
+                            }
+                        });
+                    }
+
+                    //function actionFormatter(cellvalue, options, rowObject) {
+
+
+                    //    $Perm = '<button class="btn btn-default" title="Permission" type="button" onclick="EnableUser(' + options.id + ',' + options.Name + ',' + options.domain + '\\' + options.Username + ',' + options.Roles + ')">' +
+                    //          '<i class="glyphicon glyphicon-user"></i> Enable User </button>';
+
+
+
+                    //    if (options.status == "Enabled") {
+                    //        $Stat = '<button class="btn btn-danger" title="Status" type="button"  onclick="DisableUser(' + options.sysid + ')">' +
+                    //          '<i class="glyphicon glyphicon-user"></i>Disable</button>';
+                    //    }
+                    //    else {
+                    //        $Stat = '<button class="btn btn-success" title="Status" type="button" onclick="EnableUser(' + options.Name + ',' + options.Firstname + ',' + options.Lastname + ',' + options.mail + ',' + options.domain + ',' + options.Username + ',' + options.sysid + ')">' +
+                    //          '<i class="glyphicon glyphicon-user"></i> Enable User </button>';
+                    //    }
+                    //    return $Perm + $Stat;
+                    //}
+
+
+                }
+
+
+
+                function refreshItems() {
+
+                    setTimeout(function () {
+                        window.location.href = "/User"
+                    }, 100);
+                }
+
+
+                $(function () {
+                    //$table.bootstrapTable('showLoading');
+                    //Change the background color on selected rows
+                    $table.on('click-row.bs.table', function (e, row, $element) {
+                        $('.success').removeClass('success');
+                        $($element).addClass('success');
+                    });
+
+                    $('#filter').keyup(function () {
+                        var rex = new RegExp($(this).val(), 'i');
+                        $('.searchable tr').hide();
+                        $('.searchable tr').filter(function () {
+                            return rex.test($(this).text());
+                        }).show();
+                    })
+                    $('#btnSave').click(function () {
+                        $.ajax({
+                            url: "@Url.Action("ChangeRoleUser", "User")",
+                            method: "POST",
+                            dataType: "json",
+                            data: {
+                                id: userid,
+                                Roles: $('#Roles').val()
+                            }
+                                 , success: function (responsedata) {
+                                     if (responsedata.status == "success") {
+                                         $.notify("<strong>Success</strong>. Status change.", { type: 'success', placement: { align: 'center' } });
+
+                                         $table.bootstrapTable('refresh', {
+                                             url: "@Url.Action("UserList", "User", new { transtype = "userlist" })" + "&domain=" + $('#Domain').val()
+                                         });
+                                         $('#PermissionModal').modal('hide');
+                                         //window.location.reload();
+                                     }
+                                     else {
+                                         $.notify("<strong>Oops!</strong>. Something went wrong.", { type: 'danger', placement: { align: 'center' } });
+                                     };
+                                 }
+                        });
+                    })
+                    @*@Url.Action("UserList", "User", new { domain = @ViewBag.Domain })*@
+
+                    $('#Domain').change(function () {
+
+                        $table.bootstrapTable('refresh', {
+                            url: "@Url.Action("UserList", "User", new { transtype = "userlist" })" + "&domain=" + $('#Domain').val()
+                        });
+
+
+@*                        var url = "@Url.Action("Index", "User", new { page = 1 })" + "&domain=" + $('#Domain').val() ;
+                        window.location = url;*@
+                    });
+
+                    $('#btnAdd').click(function () {
+                        $.ajax({
+                            url: "@Url.Action("SaveUserDept", "User", new { transtype = "na" })" + "&UserID=" + $('#UserID').val() + "&DepartmentID=" + encodeURIComponent($('#DeptID').val())
+                            , method: "POST"
+                            , dataType: 'json'
+                            , success: function (responsedate) {
+                                if (responsedate.status == "success") {
+
+                                    $('#tableDepartment').bootstrapTable('refresh', {
+
+                                    });
+
+
+                                } else {
+                                    alert("error");
+                                }
+                            }
+                        });
+                    })
+                });
+</script>
+

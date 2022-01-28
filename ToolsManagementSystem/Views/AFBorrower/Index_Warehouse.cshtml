@@ -1,0 +1,173 @@
+﻿    @{
+    ViewBag.Title = "Index_Warehouse";
+}
+
+<style>
+    tfoot input {
+        width: 100%;
+        padding: 3px;
+        box-sizing: border-box;
+    }
+</style>
+<script src="~/Content/scripts/moment.js"></script>
+<h2>Warehouse - Borrowers Accountability Card</h2>
+<div class="col-md-12">
+    <div class="form-group">
+        <i class="glyphicon glyphicon-plus"></i>@Html.ActionLink(" Create New", "Create", new { returnurl = "whIndex"})
+    </div>
+</div>
+<table id="tblEBC" class="display" style="width: 100%">
+    <thead>
+        <tr>
+            <th>EBC No</th>
+            <th>Employee / Group</th>
+            <th>Item Code</th>
+            <th>Description</th>
+            <th>Description2</th>
+            <th>Status</th>
+            <th>Issued Qty</th>
+            <th>Date Created</th>
+           <th style="display:none"></th>
+        </tr>
+        <tr>
+            <th>EBC No</th>
+            <th>Employee / Group</th>
+            <th>Item Code</th>
+            <th>Description</th>
+            <th>Description2</th>
+            <th>Status</th>
+            <th>Issued Qty</th>
+            <th>Date Created</th>
+           <th style="display:none">ID</th>
+        </tr>
+    </thead>
+    <tfoot>
+        <tr>
+            <th>EACNo</th>
+            <th>Employee / Group</th>
+            <th>Item Code</th>
+            <th>Description</th>
+            <th>Description2</th>
+            <th>Status</th>
+            <th>Issued Qty</th>
+            <th>Date Created</th>
+            <th style="display:none">ID</th>
+
+
+        </tr>
+    </tfoot>
+</table>
+
+<script>
+    $(function () {
+        $("#datepicker").datepicker();
+    });
+
+
+
+
+    $('#tblEBC thead tr:eq(1) th').each(function () {
+        var title = $(this).text();
+        if (title == "ID") {
+            $(this).html('');
+        } else {
+            if (title === "Date Created") {
+                $(this).html('<input type="text" id="datepicker" placeholder="Search ' + title + '" />');
+            } else {
+                $(this).html('<input type="text" placeholder="Search ' + title + '" />');
+            }
+        }
+    });
+    var table = $('#tblEBC').DataTable({
+        "processing": true,
+        "serverSide": true,
+        "info": true,
+        //"stateSave": true,
+        "lengthMenu": [[50, 100, 150, -1], [50, 100, 150, "All"]],
+        "ajax": {
+            "url": "@Url.Action("getData", "AFBorrower", new { noCols = 8 })",
+                "type": "POST"
+            },
+            "columns": [
+                {
+                    "data": "RefNo"
+                        , "orderable": true
+                        , "render": function (data, type, row, meta) {
+                            var $newLinkTarget = '<a href="@Url.Action("Edit")?id='
+                                +
+                                row['id']
+                                + '">' + data + ' </a>';
+                            return $newLinkTarget;
+                        }
+                },
+                { "data": "EmployeeName", "orderable": true },
+                { "data": "ItemCode", "orderable": true },
+                { "data": "Description", "orderable": true },
+                { "data": "Description2", "orderable": true },
+                { "data": "Status", "orderable": true },
+                { "data": "IssuedQty", "orderable": true }
+                , {
+                   "data": "DateCreated"
+                    , "orderable": true
+                    , "render": function (value) {
+                        if (value === null) return "";
+                        return moment(value).format('MM/DD/YYYY');
+                    }
+                },
+                {
+                    "data": "id"
+                    , "orderable": true
+                    , "render": function (value) {
+                        var $newLinkTarget = '<a href="@Url.Action("Edit")?id=' + value + '&user=1">View</a>';
+                        return $newLinkTarget;
+                    }, "visible": false
+                }
+            ],
+        "order": [[0, "asc"]]
+        , "orderCellsTop": true
+        });
+
+    //// Apply the search
+    //table.columns().every(function (index) {
+    //    $('#tblEBC thead tr:eq(1) th:eq(' + index + ') input').on('keyup change', function () {
+    //        table.column($(this).parent().index() + ':visible')
+    //            .search(this.value)
+    //            .draw();
+    //    });
+    //});
+
+    // Apply the search
+    var delay = (function () {
+        var timer = 0;
+        return function (callback, ms) {
+            clearTimeout(timer);
+            timer = setTimeout(callback, ms);
+        };
+    })();
+
+    $('#tblEBC input').on('keyup change', function (e) {
+        var keyCode = e.keyCode
+        if (keyCode >= 9 && keyCode <= 27) {
+
+        } else {
+            searchFunction(this);
+        }
+    });
+    function searchFunction(e) {
+        delay(function () {
+            console.log(e);
+            table.column($(e).parent().index() + ':visible')
+            .search(e.value)
+            .draw();
+        }, 1000);
+    }
+
+
+
+
+
+
+
+</script>
+
+

@@ -1,0 +1,277 @@
+﻿@{
+    ViewBag.Title = "Home";
+}
+
+
+<link href="~/Content/css/ionicons.min.css" rel="stylesheet" />
+<link href="~/Content/css/AdminLTE.css" rel="stylesheet" />
+<style>
+    .boxed {
+        border: 1px solid teal;
+        background: teal;
+        color: white;
+        font-weight: bold;
+    }
+</style>
+@if (Request.IsAuthenticated)
+{
+    <div class="form-group">
+        <h2 style="font-family:Calibri;">TMS Dashboard</h2>
+    </div>
+
+    <hr />
+
+
+<div class="col-md-2">
+    <div>
+        <div class="boxed text-center" style="font-weight:bold;">
+            Q Links
+        </div>
+        <br />
+        <div>
+            <span class="b-widget__title" style="font-style: italic; font-family: Calibri; font-weight:bold;">Accountability</span>
+            <ul>
+                <li style="font-family: Calibri;">@Html.ActionLink("Employee Accountability Card", "Index", "AFEmployee")</li>
+                <li style="font-family: Calibri;">@Html.ActionLink("Borrowers Accountability Card", "Index", "AFBorrower")</li>
+                <li style="font-family: Calibri;">@Html.ActionLink("Fixed Asset  Accountability Card", "Index", "AFFA")</li>
+
+            </ul>
+        </div>
+        <div>
+            <span class="b-widget__title" style="font-style: italic; font-family: Calibri;font-weight:bold;">Maintenance</span>
+            <ul>
+                <li style="font-family: Calibri;">@Html.ActionLink("Items", "Index", "Item")</li>
+                <li style="font-family: Calibri;">@Html.ActionLink("Department", "Index", "Department")</li>
+                @if (User.IsInRole("Admin") || User.IsInRole("Warehouse_Admin") || User.IsInRole("SuperAdmin"))
+                { 
+                    <li style="font-family: Calibri;">@Html.ActionLink("Employee", "Index", "Employee")</li>
+                    
+                    <li style="font-family: Calibri;">@Html.ActionLink("Designation", "Index", "Designation")</li>
+                    <li style="font-family: Calibri;">@Html.ActionLink("Contractor", "Index", "Contractor")</li>
+                    <li style="font-family: Calibri;">@Html.ActionLink("FAAF Signatory", "Index", "Signatory")</li>
+                    <li style="font-family: Calibri;">@Html.ActionLink("Equipment Type", "Index", "EquipmentType")</li>
+                    <li style="font-family: Calibri;">@Html.ActionLink("Group Accountability", "Index", "GroupAccountability")</li>
+                }
+            </ul>
+
+        </div>
+    </div>
+</div>
+<div class="col-md-10">
+
+        <div class="row">
+            <div class="col-lg-3 col-xs-6">
+                <div class="small-box bg-orange">
+                    <div class="inner">
+                        <h2 style="font-family: Calibri;">
+                            Overdue Items
+                        </h2>
+                        <p>
+                            @ViewBag.AllCount
+                            <br />
+                        </p>
+
+                    </div>
+                    <br />
+                    <div class="icon">
+                        <i class="ion ion-android-reminder"></i>
+                    </div>
+                    <a href="@Url.Action("OverDueList", "Item", new { dateRange = "all" })" class="small-box-footer" style="font-family: Calibri;">
+                        More Info
+                        <i class="fa fa-arrow-circle-right" aria-hidden="true"></i>
+                    </a>
+
+                </div>
+
+            </div>
+            <div class="col-lg-3 col-xs-6">
+                <div class="small-box bg-red">
+                    <div class="inner">
+                        <h2 style="font-family: Calibri;">
+                            Due for today
+                        </h2>
+                        <p>
+
+                            @ViewBag.DayCount
+                            <br />
+
+                        </p>
+
+                    </div>
+                    <br />
+                    <div class="icon">
+                        <i class="ion ion-more"></i>
+                    </div>
+                    <a href="@Url.Action("OverDueList", "Item", new { dateRange = "today" })" class="small-box-footer" style="font-family: Calibri;">
+                        More Info
+                        <i class="fa fa-arrow-circle-right" aria-hidden="true"></i>
+                    </a>
+
+                </div>
+
+            </div>
+            <div class="col-lg-3 col-xs-6">
+                <div class="small-box bg-blue">
+                    <div class="inner">
+                        <h2 style="font-family: Calibri;">
+                            Due for the week
+                        </h2>
+                        <p>
+                            @ViewBag.WeekCount
+                            <br />
+
+                        </p>
+
+                    </div>
+                    <br />
+                    <div class="icon">
+                        <i class="ion ion-archive"></i>
+                    </div>
+
+                    <a href="@Url.Action("OverDueList", "Item", new { dateRange = "week" })" class="small-box-footer" style="font-family: Calibri;">
+                        More Info
+                        <i class="fa fa-arrow-circle-right" aria-hidden="true"></i>
+                    </a>
+                </div>
+
+            </div>
+            <div class="col-lg-3 col-xs-6">
+                <div class="small-box bg-green">
+                    <div class="inner">
+                        <h2 style="font-family: Calibri;">
+                            Due for the month
+                        </h2>
+                        <p>
+                            @ViewBag.MonthCount
+                            <br />
+                        </p>
+
+                    </div>
+                    <br />
+                    <div class="icon">
+                        <i class="ion ion-document-text"></i>
+                    </div>
+                    <a href="@Url.Action("OverDueList", "Item", new { dateRange = "month" })" class="small-box-footer" style="font-family: Calibri;">
+                        More Info
+                        <i class="fa fa-arrow-circle-right" aria-hidden="true"></i>
+                    </a>
+                </div>
+
+            </div>
+
+        </div>
+        <div class="row">
+            <div class="col-lg-3 col-xs-6">
+                <div class="small-box bg-gray">
+                    <div class="inner">
+                        <h2 style="font-family: Calibri;">
+                            Borrowers Accountability Open Request
+                        </h2>
+                        <p>
+                            @ViewBag.EBCCount
+
+
+
+                            <br />
+                        </p>
+
+                    </div>
+                    <br />
+                    <div class="icon">
+                        <i class="ion ion-android-folder"></i>
+                    </div>
+                    @*<a href="@Url.Action("OverDueList", "Item", new { dateRange = "all" })" class="small-box-footer" style="font-family: Calibri;">
+                        More Info
+                        <i class="fa fa-arrow-circle-right" aria-hidden="true"></i>
+                    </a>*@
+
+                    <a href="@Url.Action( "Index", "AFBorrower",new { searchByStatus = "OPEN"})" class="small-box-footer" style="font-family: Calibri;">
+                            More Info
+                            <i class="fa fa-arrow-circle-right" aria-hidden="true"></i>
+                    </a>
+
+                </div>
+
+            </div>
+            <div class="col-lg-3 col-xs-6">
+                <div class="small-box bg-purple">
+                    <div class="inner">
+                        <h2 style="font-family: Calibri;">
+                            Employee Accountability Open Request
+                        </h2>
+                        <p>
+
+                            @ViewBag.EACCount
+                            <br />
+
+                        </p>
+
+                    </div>
+                    <br />
+                    <div class="icon">
+                        <i class="ion ion-android-folder"></i>
+                    </div>
+                    @*<a href="@Url.Action("OverDueList", "Item", new { dateRange = "today" })" class="small-box-footer" style="font-family: Calibri;">
+            More Info
+            <i class="fa fa-arrow-circle-right" aria-hidden="true"></i>
+        </a>*@
+                    <a href="@Url.Action( "Index", "AFEmployee",new { searchByStatus = "OPEN"})" class="small-box-footer" style="font-family: Calibri;">
+                        More Info
+                        <i class="fa fa-arrow-circle-right" aria-hidden="true"></i>
+                    </a>
+                </div>
+
+            </div>
+            <div class="col-lg-3 col-xs-6">
+                <div class="small-box bg-teal">
+                    <div class="inner">
+                        <h2 style="font-family: Calibri;">
+                            Fixed Asset Accountability Open Request
+                        </h2>
+                        <p>
+                            @ViewBag.FACount
+                            <br />
+
+                        </p>
+
+                    </div>
+                    <br />
+                    <div class="icon">
+                        <i class="ion ion-android-folder"></i>
+                    </div>
+
+                    @*<a href="@Url.Action("OverDueList", "Item", new { dateRange = "week" })" class="small-box-footer" style="font-family: Calibri;">
+            More Info
+            <i class="fa fa-arrow-circle-right" aria-hidden="true"></i>
+        </a>*@
+                    <a href="@Url.Action( "Index", "AFFA",new { searchByStatus = "OPEN"})" class="small-box-footer" style="font-family: Calibri;">
+                        More Info
+                        <i class="fa fa-arrow-circle-right" aria-hidden="true"></i>
+                    </a>
+                </div>
+
+            </div>
+            
+
+        </div>
+  
+
+</div>
+}
+@if (!Request.IsAuthenticated)
+{
+    <h1>Welcome to Tools Management System   
+    </h1>
+    <h4>Please @Html.ActionLink("log in", "Login", "Account", routeValues: null, htmlAttributes: new { id = "loginLink" }) to continue
+                            
+    </h4>
+}
+
+
+
+
+
+
+
+
+

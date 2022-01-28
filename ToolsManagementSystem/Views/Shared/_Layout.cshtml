@@ -1,0 +1,463 @@
+﻿@using Microsoft.AspNet.Identity
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title - Tools Management System</title>
+    @Styles.Render("~/bundles/css")
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/modernizr")
+    <style>
+        /*#imgload {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            margin-top: -50px;
+            margin-left: -50px;
+            width: 100px;
+            height: 100px;
+            z-index: 5000;
+        }*/
+
+        body {
+            overflow: hidden;
+        }
+
+        table.sortable th:not(.sorttable_sorted):not(.sorttable_sorted_reverse):not(.sorttable_nosort):after {
+            content: " \25B4\25BE";
+        }
+
+        .dropdown-submenu {
+            position: relative;
+        }
+
+            .dropdown-submenu .dropdown-menu {
+                top: 0;
+                left: 100%;
+                margin-top: -1px;
+            }
+
+        .caret-right {
+            margin-top: 6px;
+            margin-left: 5px;
+            border-bottom: 4px solid transparent;
+            border-top: 4px solid transparent;
+            border-left: 4px solid;
+            display: inline-block;
+            height: 0;
+            vertical-align: top;
+            width: 0;
+        }
+
+
+        #loadingScreen {
+            display: block;
+            position: absolute;
+            top: 25%;
+            left: 50%;
+            left: 0;
+            margin: 0 auto;
+            right: 0;
+            text-align: center;
+            width: 100%;
+            z-index: 5000;
+        }
+
+        #loadingContent {
+            background: #000 none repeat scroll 0 0;
+            border-radius: 10px;
+            color: #fff;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            min-height: 110px;
+            opacity: 0.6;
+            padding: 0 15px 15px;
+            width: 260px;
+        }
+
+
+    </style>
+
+</head>
+<body>
+
+    <div class="navbar navbar-inverse navbar-fixed-top">
+        <header id="header-wrapper" role="banner">
+            <div class="custom_container">
+                <table>
+                    <tr>
+                        <td>
+                            <h2 style="color: orange">SMPC</h2>
+                        </td>
+                        <td>
+                            <h2 style="color: white">Tools Management System    </h2>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div id="header-divider">&nbsp;</div>
+        </header>
+
+
+        <div class="custom_container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                @Html.ActionLink("TMS", "Index", "Home", null, new { @class = "navbar-brand" })
+            </div>
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav">
+                    <li>@Html.ActionLink("Home", "Index", "Home")</li>
+
+                    @if (User.IsInRole("User")|| User.IsInRole("User_Admin"))
+                    {
+                        <li class="dropdown">
+                            <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                                Accountability Card
+                                <span class="caret"></span>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li>@Html.ActionLink("Employee", "Index", "AFEmployee")</li>
+                                <li>@Html.ActionLink("Borrowers", "Index", "AFBorrower")</li>
+                                <li>@Html.ActionLink("Fixed Asset", "Index", "AFFA")</li>
+
+                            </ul>
+                        </li>
+                        <li class="dropdown">
+                            <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                                Maintenance
+                                <span class="caret"></span>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li>@Html.ActionLink("Items", "Index", "Item")</li>
+                                @*   <li>@Html.ActionLink("Department", "Index", "Department")</li>*@
+                            </ul>
+                        </li>
+
+
+                        <li class="dropdown">
+                            <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                                Reports
+                                <span class="caret"></span>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li class="dropdown-submenu">
+                                    @Html.ActionLink("Employee Summary", "EmployeeSummary", "Home")
+                                </li>
+                            </ul>
+                        </li>
+
+
+                    }
+                    @if (User.IsInRole("Warehouse_Staff") || User.IsInRole("Warehouse_Admin"))
+                    {
+                        <li class="dropdown">
+                            <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                                Accountability Card
+                                <span class="caret"></span>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li>@Html.ActionLink("Employee - WH", "Index_Warehouse", "AFEmployee")</li>
+                                <li>@Html.ActionLink("Borrower - WH", "Index_Warehouse", "AFBorrower")</li>
+                                <li>@Html.ActionLink("Fixed Asset - WH", "Index_Warehouse", "AFFA")</li>
+                            </ul>
+                        </li>
+
+                        <li class="dropdown">
+                            <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                                Maintenance
+                                <span class="caret"></span>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li>@Html.ActionLink("Items", "Index", "Item")</li>
+                                <li>@Html.ActionLink("Department", "Index", "Department")</li>
+                                @if (User.IsInRole("Warehouse_Admin"))
+                                {
+                                    <li>@Html.ActionLink("Employee", "Index", "Employee")</li>
+                                    <li>@Html.ActionLink("Designation", "Index", "Designation")</li>
+                                    <li>@Html.ActionLink("Contractor", "Index", "Contractor")</li>
+                                    <li>@Html.ActionLink("FAAF Signatory", "Index", "Signatory")</li>
+                                    @*<li>@Html.ActionLink("Equipment Type", "Index", "EquipmentType")</li>*@
+                                    <li>@Html.ActionLink("Group Accountability", "Index", "GroupAccountability")</li>
+                                }
+                            </ul>
+                        </li>
+                        <li class="dropdown">
+                            <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                                Reports
+                                <span class="caret"></span>
+                            </a>
+                            <ul class="dropdown-menu">
+                                @if (User.IsInRole("Warehouse_Staff") || User.IsInRole("Warehouse_Admin"))
+                                {
+                                    <li class="dropdown-submenu">
+                                        <a class="test" href="#">Master List of Employee <span class="caret-right"></span></a>
+                                        <ul class="dropdown-menu submenu">
+                                            <li>@Html.ActionLink("Show", "PrintMLE", "Home", null, new { target = "_blank" })</li>
+                                            <li>@Html.ActionLink("Download to Excel", "PrintMLEExcel", "Home", null, new { target = "_blank" })</li>
+                                        </ul>
+                                    </li>
+                                    <li class="dropdown-submenu">
+                                        <a class="test" href="#">Borrowers Daily Monitoring <span class="caret-right"></span></a>
+                                        <ul class="dropdown-menu submenu">
+                                            <li>@Html.ActionLink("Show", "PrintBDM", "Home", null, new { target = "_blank" })</li>
+                                            <li>@Html.ActionLink("Download to Excel", "PrintBDMExcel", "Home", null, new { target = "_blank" })</li>
+                                        </ul>
+                                    </li>
+                                    <li class="dropdown-submenu">
+                                        <a class="test" href="#">Deployed Items <span class="caret-right"></span></a>
+                                        <ul class="dropdown-menu submenu">
+                                            <li>@Html.ActionLink("Show", "PrintUnreturnItems", "Item", null, new { target = "_blank" })</li>
+                                            <li>@Html.ActionLink("Download to Excel", "PrintUnreturnItemsExcel", "Item", null, new { target = "_blank" })</li>
+                                        </ul>
+                                    </li>
+                                    <li class="dropdown-submenu">
+                                        <a class="test" href="#">Item Tracking <span class="caret-right"></span></a>
+                                        <ul class="dropdown-menu submenu">
+                                            <li>@Html.ActionLink("Show", "PrintItemTracking", "Item", new { rptType = "pdf" }, new { target = "_blank" })</li>
+                                            <li>@Html.ActionLink("Download to Excel", "PrintItemTracking", "Item", new { rptType = "excel" }, new { target = "_blank" })</li>
+                                        </ul>
+                                    </li>
+                                    <li class="dropdown-submenu">
+                                        <a class="test" href="#">Inventory <span class="caret-right"></span></a>
+                                        <ul class="dropdown-menu submenu">
+                                            <li>@Html.ActionLink("Show", "PrintInventory", "Item", new { rptType = "pdf" }, new { target = "_blank" })</li>
+                                            <li>@Html.ActionLink("Download to Excel", "PrintInventory", "Item", new { rptType = "excel" }, new { target = "_blank" })</li>
+                                        </ul>
+                                    </li>
+                                    <li class="dropdown-submenu">
+                                        @Html.ActionLink("Stock Position Report", "StockPosition", "Home")
+                                    </li>
+                                }
+                                <li class="dropdown-submenu">
+                                    @Html.ActionLink("Employee Summary", "EmployeeSummary", "Home")
+                                </li>
+
+                            </ul>
+                        </li>
+                    }
+                    @if (User.IsInRole("Admin") || User.IsInRole("SuperAdmin"))
+                    {
+                        <li class="dropdown">
+                            <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                                Accountability Card
+                                <span class="caret"></span>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li>@Html.ActionLink("Employee", "Index", "AFEmployee")</li>
+                                <li>@Html.ActionLink("Borrowers", "Index", "AFBorrower")</li>
+                                <li>@Html.ActionLink("Fixed Asset", "Index", "AFFA")</li>
+                                <li>@Html.ActionLink("Employee - WH", "Index_Warehouse", "AFEmployee")</li>
+                                <li>@Html.ActionLink("Borrower - WH", "Index_Warehouse", "AFBorrower")</li>
+                                <li>@Html.ActionLink("Fixed Asset - WH", "Index_Warehouse", "AFFA")</li>
+
+                            </ul>
+                        </li>
+
+                        <li class="dropdown">
+                            <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                                Maintenance
+                                <span class="caret"></span>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li>@Html.ActionLink("Items", "Index", "Item")</li>
+                                <li>@Html.ActionLink("Employee", "Index", "Employee")</li>
+                                <li>@Html.ActionLink("Department", "Index", "Department")</li>
+                                <li>@Html.ActionLink("Designation", "Index", "Designation")</li>
+                                <li>@Html.ActionLink("Contractor", "Index", "Contractor")</li>
+                                <li>@Html.ActionLink("FAAF Signatory", "Index", "Signatory")</li>
+                                @*<li>@Html.ActionLink("Equipment Type", "Index", "EquipmentType")</li>*@
+                                <li>@Html.ActionLink("Group Accountability", "Index", "GroupAccountability")</li>
+                            </ul>
+                        </li>
+                        <li class="dropdown">
+                            <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                                Reports
+                                <span class="caret"></span>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li class="dropdown-submenu">
+                                    <a class="test" href="#">Master List of Employee <span class="caret-right"></span></a>
+                                    <ul class="dropdown-menu submenu">
+                                        <li>@Html.ActionLink("Show", "PrintMLE", "Home", null, new { target = "_blank" })</li>
+                                        <li>@Html.ActionLink("Download to Excel", "PrintMLEExcel", "Home", null, new { target = "_blank" })</li>
+                                    </ul>
+                                </li>
+
+                                <li class="dropdown-submenu">
+                                    @Html.ActionLink("Employee Summary", "EmployeeSummary", "Home")
+                                </li>
+                                <li class="dropdown-submenu">
+                                    <a class="test" href="#">Borrowers Daily Monitoring <span class="caret-right"></span></a>
+                                    <ul class="dropdown-menu submenu">
+                                        <li>@Html.ActionLink("Show", "PrintBDM", "Home", null, new { target = "_blank" })</li>
+                                        <li>@Html.ActionLink("Download to Excel", "PrintBDMExcel", "Home", null, new { target = "_blank" })</li>
+                                    </ul>
+                                </li>
+                                <li class="dropdown-submenu">
+                                    <a class="test" href="#">Deployed Items <span class="caret-right"></span></a>
+                                    <ul class="dropdown-menu submenu">
+                                        <li>@Html.ActionLink("Show", "PrintUnreturnItems", "Item", null, new { target = "_blank" })</li>
+                                        <li>@Html.ActionLink("Download to Excel", "PrintUnreturnItemsExcel", "Item", null, new { target = "_blank" })</li>
+                                    </ul>
+                                </li>
+                                <li class="dropdown-submenu">
+                                    <a class="test" href="#">Item Tracking <span class="caret-right"></span></a>
+                                    <ul class="dropdown-menu submenu">
+                                        <li>@Html.ActionLink("Show", "PrintItemTracking", "Item", new { rptType = "pdf" }, new { target = "_blank" })</li>
+                                        <li>@Html.ActionLink("Download to Excel", "PrintItemTracking", "Item", new { rptType = "excel" }, new { target = "_blank" })</li>
+                                    </ul>
+                                </li>
+                                <li class="dropdown-submenu">
+                                    <a class="test" href="#">Inventory <span class="caret-right"></span></a>
+                                    <ul class="dropdown-menu submenu">
+                                        <li>@Html.ActionLink("Show", "PrintInventory", "Item", new { rptType = "pdf" }, new { target = "_blank" })</li>
+                                        <li>@Html.ActionLink("Download to Excel", "PrintInventory", "Item", new { rptType = "excel" }, new { target = "_blank" })</li>
+                                    </ul>
+                                </li>
+                                <li class="dropdown-submenu">
+                                    @Html.ActionLink("Stock Position Report", "StockPosition", "Home")
+                                </li>
+                            </ul>
+                        </li>
+                    }
+                        @if (User.IsInRole("SuperAdmin"))
+                        {
+                            <li class="dropdown">
+                                <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                                    System Admin
+                                    <span class="caret"></span>
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li>@Html.ActionLink("Users", "Index", "User")</li>
+                                </ul>
+                            </li>
+
+                        }
+                    </ul>
+                @Html.Partial("_LogInPartial")
+            </div>
+        </div>
+    </div>
+
+    <div id="container_adj" class="custom_container" style="overflow: scroll; margin-top: 155px">
+
+
+        @*<img id="imgload" src="~/Images/Assets/gif_processing2.gif" style="display: none">*@
+
+                        <div id="loadingScreen" class="loadingWrapper" style="display:none">
+                            <div id="loadingContent">
+                                <br>
+                                <img src="~/Images/Assets/big-spinner.gif"><br>
+                                Please wait
+                            </div>
+                        </div>
+
+
+        @RenderBody()
+
+    </div>
+
+    @RenderSection("scripts", required: false)
+</body>
+
+<script>
+
+
+    $(document).ajaxStart(function () {
+        $("#loadingScreen").fadeIn();
+    }).ajaxStop(function () {
+        $("#loadingScreen").fadeOut();
+    });
+
+
+    $(window).bind('resize', function () {
+        //console.log($(window).height());
+        $("#container_adj").css('height', $(window).height() - 180);
+    }).trigger('resize');
+
+    $(function () {
+
+        $("#empsum").on('click', function () {
+            $('#modalFilter').modal('show')
+        });
+
+        $('.dropdown-submenu a.test').click(function (e) {
+            $('.submenu').css('display', 'none');
+            $(this).next('ul').toggle();
+            e.stopPropagation();
+            e.preventDefault();
+        });
+
+
+
+
+
+        $('#btnShow').click(function (e) {
+            //alert("show");
+            $('#frm').submit(function () {
+                flag = true;
+
+                $('<input />').attr('type', 'hidden')
+                .attr('name', "show")
+                .attr('value', "show")
+                .appendTo('#frm');
+
+                return flag;
+            })
+        })
+        $('#btnExcel').click(function (e) {
+            //alert("excel")
+            $('#frm').submit(function () {
+                flag = true;
+
+                $('<input />').attr('type', 'hidden')
+                .attr('name', "excel")
+                .attr('value', "excel")
+                .appendTo('#frm');
+
+                return flag;
+            })
+        })
+        @*$('#btnShow').click(function (e) {
+            var URL = "@Url.Action("FilterPrintES", "Home")";
+            $.ajax({
+                url: URL
+            , method: "POST"
+            , dataType: 'json'
+            , data: $('#frm').serialize()
+            , async: false
+            , complete: function (resp) {
+                window.open(URL, '_blank');
+            }
+            });
+
+
+
+
+        })
+        $('#btnExcel').click(function (e) {
+            $.ajax({
+                url: "@Url.Action("FilterPrintESExcel", "Home")"
+            , method: "POST"
+            , dataType: 'json'
+            , data: $('#frm').serialize()
+            , success: function (responsedata) {
+                alert("success");
+            }
+            });
+
+        })*@
+
+
+    });
+
+</script>
+</html>

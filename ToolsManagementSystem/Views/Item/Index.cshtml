@@ -1,0 +1,302 @@
+﻿@{
+    ViewBag.Title = "Item List";
+}
+
+<style>
+    tfoot input {
+        width: 100%;
+        padding: 3px;
+        box-sizing: border-box;
+    }
+</style>
+
+
+
+<h3>Item List</h3>
+@if (!User.IsInRole("User"))
+{ 
+    <div class="col-md-12">
+        <div class="form-group">
+            <i class="glyphicon glyphicon-plus"></i>@Html.ActionLink(" Create New", "Create")
+        </div>
+    </div>
+}
+
+
+<table id="tbl" class="display" style=" width: 100%">
+    <thead>
+        <tr>
+            <th>Item Code</th>
+            <th>Description</th>
+            <th>Description2</th>
+            <th>Inventory</th>
+            <th>Shelf No</th>
+            <th>Category </th>
+            <th>Blocked</th>
+            <th style="display:none"></th>
+        </tr>
+        <tr>
+            <th>Item Code</th>
+            <th>Description</th>
+            <th>Description2</th>
+            <th>Inventory</th>
+            <th>Shelf No</th>
+            <th>Category </th>
+            <th>Blocked</th>
+            <th style="display:none">ID</th>
+        </tr>
+    </thead>
+    <tfoot>
+       <tr>
+            <th>Item Code</th>
+            <th>Description</th>
+            <th>Description2</th>
+            <th>Inventory</th>
+            <th>Shelf No</th>
+            <th>Category </th>
+            <th>Blocked</th>
+            <th style="display:none">ID</th>
+        </tr>
+    </tfoot>
+</table>
+
+<script>
+    $(function () {
+        $("#datepicker").datepicker();
+    });
+
+    var RoleIsUser = "@User.IsInRole("User")".toLowerCase(); 
+    var RoleIsWarehouseStaff = "@User.IsInRole("Warehouse_Staff")".toLowerCase(); 
+
+    $('#tbl thead tr:eq(1) th').each(function () {
+            var title = $(this).text();
+
+            if (title == "ID") {
+                $(this).html('');
+            } else {
+                if (title === "Date Created") {
+                    $(this).html('<input type="text" id="datepicker" placeholder="Search ' + title + '" />');
+                } else {
+                    if (title != "Inventory") {
+                        $(this).html('<input type="text" placeholder="Search ' + title + '" />');
+                    } else {
+                        $(this).html('<Label></Label>');
+                    }
+
+                }
+            }
+    });
+    var table = $('#tbl').DataTable({
+        "processing": true,
+        "serverSide": true,
+        "info": true,
+        "lengthMenu": [[50, 100, 150, -1], [50, 100, 150, "All"]],
+        "ajax": {
+            "url": "@Url.Action("indexData", "Item", new { noCols = 8 })",
+            "type": "POST"
+        },
+        "columns": [
+            //{ "data": "ItemCode", "orderable": true },
+            {
+                "data": "ItemCode"
+                        , "orderable": true
+                        , "render": function (data, type, row, meta) {
+                            var $newLinkTarget = '';
+
+                            if (RoleIsUser == 'true' ) {
+                                $newLinkTarget = data
+                            } else {
+                                var $newLinkTarget = '<a href="@Url.Action("Details")?id='
+                                +
+                                row['id']
+                                + '">' + data + ' </a>';;
+                            }
+                            return $newLinkTarget;
+                        }
+            },
+            { "data": "Description", "orderable": true },
+            { "data": "Description2", "orderable": true },
+            {
+                "data": "Inventory"
+                , "orderable": true
+                , "render": function (data, type, row, meta) {
+                    var $newLinkTarget = '';
+
+                    if (RoleIsUser == 'true' ) {
+                        $newLinkTarget = data
+                    } else {
+                        $newLinkTarget = '<a href="@Url.Action("ItemTracking")?id='
+                        + row['id'] + '">' + data + ' </a>';
+                    }
+
+
+                    return $newLinkTarget;
+                }
+            },
+            { "data": "ShelfNo", "orderable": true },
+            { "data": "Category", "orderable": true },
+            //{ "data": "EquipmentType", "orderable": true },
+            { "data": "Blocked", "orderable": true },
+            {
+                "data": "id"
+                , "orderable": true
+                , "render": function (value) {
+                    var $newLinkTarget = '<a href="@Url.Action("Details")?id=' + value + '">View</a>';
+                        return $newLinkTarget;
+                }
+                ,"visible": false
+            }
+
+            ],
+        "order": [[0, "asc"]]
+        , "orderCellsTop": true
+    });
+
+
+    // Apply the search
+    table.columns().every(function (index) {
+        $('#tbl thead tr:eq(1) th:eq(' + index + ') input').on('keyup change', function () {
+            table.column($(this).parent().index() + ':visible')
+                .search(this.value)
+                .draw();
+        });
+    });
+
+
+
+
+
+
+</script>
+
+
+
+
+
+@*<script>
+    $('#btnDelete0').hide();
+
+    var i = 1;
+    var selectValues = "";
+    var finrow = "";
+
+    function toggleFilter() {
+        var x = document.getElementById('filterGroup');
+        if (x.style.display === 'none') {
+            $("#filterGroup").show(500);
+        } else {
+            $("#filterGroup").hide(500);
+        }
+    }
+    function refreshItems() {
+
+        setTimeout(function () {
+            location.reload();
+        }, 100);
+    }
+
+
+    $('#keyfldid0').select2({
+        width: '100%',
+        theme: 'bootstrap'
+    });
+
+    function addRow(r) {
+        $('#btnDelete' + (i - 1)).show();
+        $('#btnSearch' + (i - 1)).hide();
+        $(r).hide();
+
+        selectValues = @Html.Raw(
+            Json.Encode(
+                ((List<SelectListItem>)ViewBag.Columns).Select(c => new
+                {
+                    Value = c.Value,
+                    Text = c.Text,
+                })
+            )
+        )
+        finrow = '<td class="col-md-2"  style="border:none"><select id="keyfldid' + i + '" name="keyfld' + i + '" class="form-control fldcol"></select></td>\n\
+                              <td class="col-md-2" style="border:none"><input type="text" value="" name="keyval' + i + '" id="keyval' + i + '" class="form-control fldval"></td>\n\
+                              <td class="col-md-2" style="border:none">' +
+                        '<button class="btn btn-danger" type="button"  id="btnDelete' + i + '" aria-expanded="false" onclick="deleteRow(this)">' +
+                            '<i class="glyphicon glyphicon-minus"></i> </button>' +
+                        '<button class="btn btn-success btnNewRow" type="button" aria-expanded="false" onclick="addRow(this)">' +
+                           '<i class="glyphicon glyphicon-plus"></i> </button>' +
+                        '<button class="btn btn-info btnSearch" type="button"  id="btnSearch' + i + '"  aria-expanded="false" onclick="searchForm()">' +
+                           '<i class="glyphicon glyphicon-search"></i> </button>' +
+                      '</td>' +
+                 '<td class="col-md-6"  style="border:none"></td>';
+        $('#res' + i).html(finrow);
+        $('#tableFilter tr:last').after('<tr id="res' + (i + 1) + '"></tr>');
+
+        var mySelect = $('#keyfldid' + i).select2({ theme: 'bootstrap' });
+        $.each(selectValues, function (key, value) {
+            mySelect.append($("<option/>").val(value['Value']).text(value['Text']));
+        });
+
+        $('#btnDelete' + (i)).hide();
+        $('#btnSearch' + (i)).show();
+        i++;
+
+    }
+
+        function deleteRow(r) {
+            var i = r.parentNode.parentNode.rowIndex;
+            document.getElementById("tableFilter").deleteRow(i);
+        }
+        var publish = function (id) {
+
+            $.ajax({
+                url: "@Url.Action("ChangeStatJson")",
+                method: "POST",
+                dataType: "json",
+                data: { stat: "Active", id: id }
+            , success: function (responsedata) {
+                if (responsedata.status == "success") {
+                    $("#pub_" + id).removeClass("glyphicon glyphicon-remove").addClass("glyphicon glyphicon-ok");
+                    $("#pub_" + id).attr('id', 'unpub_' + id)
+                    $("#ancpub_" + id).attr('onclick', "unpublish(" + id + ")")
+                    $("#ancpub_" + id).attr('id', 'ancunpub_' + id)
+                    $.notify("<strong>Success</strong>. Status change.", { type: 'success', placement: { align: 'center' } });
+                } else {
+                    $.notify("<strong>Oops!</strong>. Something went wrong.", { type: 'danger', placement: { align: 'center' } });
+                };
+            }
+            });
+        }
+
+    var unpublish = function (id) {
+        $.ajax({
+            url: "@Url.Action("ChangeStatJson")",
+            method: "POST",
+            dataType: "json",
+            data: { stat: "InActive", id: id }
+            , success: function (responsedata) {
+                if (responsedata.status == "success") {
+                    $("#unpub_" + id).removeClass("glyphicon glyphicon-ok").addClass("glyphicon glyphicon-remove");
+                    $("#unpub_" + id).attr('id', 'pub_' + id).change()
+                    $("#ancunpub_" + id).attr('onclick', "publish(" + id + ")")
+                    $("#ancunpub_" + id).attr('id', 'ancpub_' + id)
+                    $.notify("<strong>Success</strong>. Status change.", { type: 'success', placement: { align: 'center' } });
+                } else {
+                    $.notify("<strong>Oops!</strong>. Something went wrong.", { type: 'danger', placement: { align: 'center' } });
+                };
+            }
+        });
+    }
+
+   
+    function searchForm() {
+        $.ajax({
+            url: "@Url.Action("FilterItems")"
+            , type: "POST"
+            , dataType: 'html'
+            , data: $('#frm').serialize()
+            , success: function (responsedata) {
+                $('#itemLists').html(responsedata)
+            }
+        });
+    }
+
+
+</script>*@

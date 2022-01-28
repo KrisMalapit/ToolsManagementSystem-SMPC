@@ -1,0 +1,259 @@
+﻿@{
+    ViewBag.Title = "EmployeeSummary";
+}
+<style>
+    tfoot input {
+        width: 100%;
+        padding: 3px;
+        box-sizing: border-box;
+    }
+    .dataTables_wrapper .dt-buttons {
+      float:none;  
+      text-align:left;
+      margin-bottom : 30px;
+    }
+    input {
+        width: 75px;
+    }
+    #tblEmployeeSummary_filter input {
+        width: 200px;
+        text-align:right;
+        
+    }
+
+</style>
+
+<script src="~/Content/scripts/moment.js"></script>
+<script src="~/Content/scripts/dataTables.buttons.min.js"></script>
+<script src="~/Content/scripts/jszip.min.js"></script>
+<script src="~/Content/scripts/buttons.html5.min.js"></script>
+
+
+<h2>Employee Summary</h2>
+
+@*<button title="Print Item" id="print-item" type="button" onclick="window.open('@Url.Action("printEmployeeSummary")')" class="btn btn-default">
+    <i class="glyphicon glyphicon-print"></i>
+</button>*@
+
+
+<table id="tblEmployeeSummary" class="display" style="width: 100%">
+    <thead>
+        <tr>
+            <th>RefNo</th>
+            <th>Employee / Group</th>
+            <th>Member</th>
+            <th>Department</th>
+            <th>ItemCode</th>
+            <th>Description</th>
+            <th>Description2</th>
+            <th>SerialNo</th>
+            <th>PO</th>
+            <th>Qty</th>
+            <th>QtyReturn</th>
+            <th>QtyTransferred</th>
+            <th>UOM</th>
+            <th>UnitCost</th>
+            <th>DateIssued</th>
+            <th>Contractor</th>
+            <th>WorkOrder</th>
+            <th>Remarks</th> 
+            <th>Category</th> 
+        </tr>
+        <tr>
+            <th>RefNo</th>
+            <th>EmployeeName</th>
+            <th>Member</th>
+            <th>Department</th>
+            <th>ItemCode</th>
+            <th>Description</th>
+            <th>Description2</th>
+            <th>SerialNo</th>
+            <th>PO</th>
+            <th>Qty</th>
+            <th>QtyReturn</th>
+            <th>QtyTransferred</th>
+            <th>UOM</th>
+            <th>UnitCost</th>
+            <th>DateIssued</th>
+            <th>Contractor</th>
+            <th>WorkOrder</th>
+            <th>Remarks</th> 
+            <th>Category</th> 
+        </tr>
+    </thead>
+    <tfoot>
+        <tr>
+            <th>RefNo</th>
+            <th>EmployeeName</th>
+            <th>Member</th>
+            <th>Department</th>
+            <th>ItemCode</th>
+            <th>Description</th>
+            <th>Description2</th>
+            <th>SerialNo</th>
+            <th>PO</th>
+            <th>Qty</th>
+            <th>QtyReturn</th>
+            <th>UOM</th>
+            <th>UnitCost</th>
+            <th>DateIssued</th>
+            <th>Contractor</th>
+            <th>WorkOrder</th>
+            <th>Remarks</th> 
+            <th>Category</th>
+        </tr>
+    </tfoot>
+</table>
+
+
+
+<script>
+    $(function () {
+        $("#datepicker").datepicker();
+    });
+        $('#tblEmployeeSummary thead tr:eq(1) th').each(function () {
+            var title = $(this).text();
+            if (title === "DateIssued") {
+                $(this).html('<input type="text" id="datepicker" placeholder="Search ' + title + '" />');
+            } else {
+                $(this).html('<input type="text" placeholder="Search ' + title + '" />');
+            }
+        });
+
+        var table = $('#tblEmployeeSummary').DataTable({
+            "processing": true,
+            "serverSide": true,
+            "info": true,
+            "lengthMenu": [[100, 200, 500, -1], [100, 200, 500, "All"]],
+            "ajax": {
+                "url": "@Url.Action("getData", "Home", new { noCols = 19 })",
+                "type": "post"
+            },
+            "columns": [
+                { "data": "RefNo", "orderable": true },
+                { "data": "EmployeeName", "orderable": true },
+                { "data": "Member", "orderable": true },
+                { "data": "Department", "orderable": true },
+                { "data": "ItemCode", "orderable": true },
+                { "data": "Description", "orderable": true },
+                { "data": "Description2", "orderable": true }
+                ,{ "data": "SerialNo", "orderable": true }
+                ,{ "data": "PO", "orderable": true }
+                ,{ "data": "Qty", "orderable": true }
+                ,{ "data": "QtyReturn", "orderable": true }
+                ,{ "data": "QtyTransferred", "orderable": true }
+                ,{ "data": "UOM", "orderable": true }
+                ,{
+                    "data": "UnitCost", "orderable": true
+                    , "render": function (value) {
+                        return (value.toFixed(2).replace
+                            (/\B(?=(\d{3})+(?!\d))/g, ","));
+                    }
+                }
+                ,{
+                    "data": "DateIssued"
+                    , "orderable": true
+                    , "render": function (value) {
+                        if (value === null) return "";
+                        return moment(value).format('MM/DD/YYYY');
+                    }
+                  }
+                ,{ "data": "Contractor", "orderable": true }
+                ,{ "data": "WorkOrder", "orderable": true }
+                ,{ "data": "Remarks", "orderable": true }
+                ,{ "data": "Category", "orderable": true }
+            ]
+
+
+            , "order": [[0, "asc"]]
+
+            , "dom": 'Blfrtip'
+            ,
+                "buttons": [
+                //'excel'
+                ]
+
+            , "orderCellsTop": true
+        });
+
+    table.button().add(0, {
+        action: function (e, dt, button, config) {
+            printES();
+        },
+        text: 'Print'
+    });
+    table.button().add(0, {
+        action: function (e, dt, button, config) {
+            excelES();
+        },
+        text: 'Excel'
+    });
+
+    
+    // Apply the search
+    var delay = (function () {
+        var timer = 0;
+        return function (callback, ms) {
+            clearTimeout(timer);
+            timer = setTimeout(callback, ms);
+        };
+    })();
+
+    //table.columns().every(function (index) {
+    //    $('#tblEmployeeSummary thead tr:eq(1) th:eq(' + index + ') input').on('keyup change', function (e) {
+    //        var keyCode = e.keyCode
+    //        if (keyCode >= 9 && keyCode <= 27) {
+
+    //        } else {
+    //            searchFunction(this);
+    //        }
+
+
+    //    });
+    //});
+
+
+    $('#tblEmployeeSummary input').on('keyup change', function (e) {
+        var keyCode = e.keyCode
+        if (keyCode >= 9 && keyCode <= 27) {
+
+        } else {
+            searchFunction(this);
+        }
+    });
+
+
+    function printES() {
+        window.open('@Url.Action("printEmployeeSummary")');
+    }
+    function excelES() {
+        window.open('@Url.Action("excelEmployeeSummary")');
+   }
+    function searchFunction(e) {
+        delay(function () {
+            console.log(e);
+            table.column($(e).parent().index() + ':visible')
+            .search(e.value)
+            .draw();
+        }, 1000);
+    }
+
+    //$(' #tblEmployeeSummary_filter input')
+    //.unbind('keypress keyup')
+    //.bind('keypress keyup', function (e) {
+    //    if ($(this).val().length < 3 && e.keyCode != 13) return;
+    //    table.fnFilter($(this).val());
+    //});
+
+
+    //override default searchbox of datatable 
+    $(".dataTables_filter input")
+        .unbind()
+        .bind('keyup change', function (e) {
+            if (e.keyCode == 13 || this.value == "") {
+                table.search(this.value)
+                    .draw();
+            }
+        });
+</script>
+

@@ -1,0 +1,140 @@
+﻿@model ToolsManagementSystem.Models.GroupAccountability
+
+@{
+    ViewBag.Title = "Details";
+}
+
+<h2>Details</h2>
+<h4>Group Accountability</h4>
+
+
+<hr />
+
+<table>
+    <tr>
+        <td style="width: 200px;">@Html.Label("Group Name")</td>
+        <td style="width: 500px;">@Model.Name</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td style="width: 200px;">@Html.Label("Employee Name")</td>
+        <td style="width: 500px;">
+            <select class="form-control" id="EmployeeID" name="EmployeeID">
+                <option>Select Employee</option>
+            </select>
+        </td>
+        <td></td>
+    </tr>
+</table>
+@Html.HiddenFor(model => model.DepartmentID)
+
+
+<h4>Members</h4>
+
+<div class="form-group" style="margin: 5px;">
+    <table id="tblGroupMembers" class="table table-bordered table-striped" style="clear: both"
+           data-toggle="table"
+           data-url="@Url.Action("GroupMember", "GroupAccountability", new { groupid = @ViewBag.ID })"
+           data-side-pagination="server"
+           data-page-list="[5, 10, 20, 50, 100, 200]"
+           data-height="auto"
+           data-pagination="true"
+           data-id-field="id">
+        <thead>
+            <tr>
+                <th data-field="state" data-checkbox="true" data-visible="false"></th>
+                <th data-field="id" data-visible="false">id</th>
+                <th data-field="Employee" data-halign="center">Employee</th>
+                @*<th data-field="Name" data-halign="center">Name</th>*@
+                <th data-field="action" data-formatter="actionFormatter" data-align="left" data-width="151px" data-halign="center">Action</th>
+            </tr>
+        </thead>
+    </table>
+</div>
+<p>
+
+    @Html.ActionLink("Back to List", "Index")
+</p>
+<script>
+    groupid = @ViewBag.ID;
+    $table = $('#tblGroupMembers');
+    function actionFormatter(cellvalue, options, rowObject) {
+
+        $Stat = '<button class="btn btn-danger" title="Delete" type="button" style="  font-size: 12px; width: 100%"  onclick="RemoveMember(\'' + options.id + '\')">' +
+          '<i class="glyphicon glyphicon-minus"></i></button>';
+
+        return $Stat;
+    };
+
+
+    function RemoveMember(id) {
+
+        if (confirm('Are you sure you want to remove department for this user?')) {
+            $.ajax({
+                url: "@Url.Action("DeleteMember", "GroupAccountability")",
+                method: "POST",
+                dataType: "json",
+                data: {
+                    'id': id,
+
+                }
+                            , success: function (responsedata) {
+                                if (responsedata.status == "success") {
+                                    $table.bootstrapTable('refresh', {
+                                        url: "@Url.Action("GroupMember", new { t = "t" })" + "&groupid=" + groupid
+                                    });
+                                } else {
+                                    $.notify("<strong>Oops!</strong>. Something went wrong.", { type: 'danger', placement: { align: 'center' } });
+                                };
+                            }
+            });
+        }
+    }
+    $('#EmployeeID').on('select2:select', function (e) {
+        var data = e.params.data;
+        $.ajax({
+            url: "@Url.Action("SaveGroupMember", "GroupAccountability")",
+            method: "POST",
+            dataType: "json",
+            data: {
+                'EmployeeID': data['id'],
+                'GroupAccountabilityID': groupid,
+
+            }
+            , success: function (responsedata) {
+                if (responsedata.status == "success") {
+                    $table.bootstrapTable('refresh', {
+                        url: "@Url.Action("GroupMember", new { t = "t" })" + "&groupid=" + groupid
+                    });
+                } else {
+                    $.notify("<strong>Oops!</strong>. Something went wrong. Message :" + responsedata.message, { type: 'danger', placement: { align: 'center' } });
+                };
+            }
+        });
+    });
+
+    $("#EmployeeID").select2({
+        width: '100%',
+        theme: 'bootstrap',
+        minimumInputLength: 1,
+        placeholder: '',
+        closeOnSelect: false,
+        ajax: {
+            url: "@Url.Action("SearchEmployee_Json", "Employee")?DeptID=" + $('#DepartmentID').val(),
+            dataType: 'json',
+            delay: 300,
+            data: function (params) {
+                return {
+                    q: params.term, // search term
+                    page: params.page
+                };
+            },
+            processResults: function (data, page) {
+                return {
+                    results: data.items
+                };
+            },
+            cache: false
+        }
+    });
+</script>

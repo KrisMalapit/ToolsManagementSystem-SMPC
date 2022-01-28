@@ -1,0 +1,119 @@
+﻿@model ToolsManagementSystem.Models.Employee
+
+@{
+    ViewBag.Title = "Edit";
+}
+
+<h2>Edit</h2>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    
+    <div class="form-horizontal">
+        <h4>Employee</h4>
+        <hr />
+        @Html.ValidationSummary(true)
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.EmpId, new { @class = "custom_control-label col-md-2" })
+            <div class="col-md-4">
+                @Html.TextBoxFor(model => model.EmpId, new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.EmpId)
+            </div>
+            @Html.Label("Department", new { @class = "custom_control-label col-md-2" })
+            <div class="col-md-4">
+                @Html.DropDownList("DepartmentID",null, "Select Department", new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.DepartmentID)
+
+            </div>
+
+        </div>
+
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.LastName, new { @class = "custom_control-label col-md-2" })
+            <div class="col-md-4">
+                @Html.TextBoxFor(model => model.LastName, new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.LastName)
+            </div>
+            @Html.Label("Designation", new { @class = "custom_control-label col-md-2" })
+            <div class="col-md-4">
+                @Html.DropDownList("DesignationID",null, "Select Designation", new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.DesignationID)
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.FirstName, new { @class = "custom_control-label col-md-2" })
+            <div class="col-md-4">
+                @Html.TextBoxFor(model => model.FirstName, new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.FirstName)
+            </div>
+        </div>
+
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Save" class="btn btn-default" />
+            </div>
+        </div>
+    </div>
+}
+
+<div>
+    @Html.ActionLink("Back to List", "Index")
+</div>
+<script>
+    $(function () {
+        $("#DepartmentID").select2({
+            theme: "bootstrap",
+            ajax: {
+                url: "@Url.Action("SearchDepartment_Json")",
+                dataType: 'json',
+                delay: 300,
+                data: function (params) {
+                    return {
+                        q: params.term, // search term
+                        page: params.page
+                    };
+                },
+                processResults: function (data, page) {
+                    // parse the results into the format expected by Select2.
+                    // since we are using custom formatting functions we do not need to
+                    // alter the remote JSON data
+                    return {
+                        results: data.items
+                    };
+                },
+                cache: false
+            },
+            minimumInputLength: 1
+        });
+        $("#DesignationID").select2({
+            theme: "bootstrap",
+            ajax: {
+                url: "@Url.Action("SearchDesignation_Json")",
+                dataType: 'json',
+                delay: 300,
+                data: function (params) {
+                    return {
+                        q: params.term, // search term
+                        page: params.page
+                    };
+                },
+                processResults: function (data, page) {
+                    // parse the results into the format expected by Select2.
+                    // since we are using custom formatting functions we do not need to
+                    // alter the remote JSON data
+                    return {
+                        results: data.items
+                    };
+                },
+                cache: false
+            },
+            minimumInputLength: 1
+        });
+
+    });
+</script>

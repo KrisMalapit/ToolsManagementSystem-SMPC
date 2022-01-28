@@ -1,0 +1,109 @@
+﻿@model ToolsManagementSystem.Models.Item
+
+@{
+    ViewBag.Title = "Details";
+}
+
+
+
+
+
+
+
+<div class="col-md-12" style="padding-left:0px;">
+
+        <i class="glyphicon glyphicon-plus"></i>@Html.ActionLink(" Create New", "Create") || 
+        <i class="glyphicon glyphicon-edit"></i>@Html.ActionLink(" Edit", "Edit", new { id = @ViewBag.id }) 
+        @*<i class="glyphicon glyphicon-print"></i>@Html.ActionLink(" Print", "PrintItemLogs", new {id = Model.id}, new {id="print-item", target = "_blank" })*@
+</div>
+
+<div class="form-horizontal">
+    <div class="form-group">
+        @Html.LabelFor(model => model.ItemCode, new { @class = "custom_control-label col-md-2" })
+        <div class="col-md-4">
+            @Html.TextBoxFor(model => model.ItemCode, new { @class = "form-control", @readonly = "readonly" })
+            @Html.ValidationMessageFor(model => model.ItemCode)
+        </div>
+
+                @Html.LabelFor(model => model.ShelfNo, new { @class = "custom_control-label col-md-2" })
+        <div class="col-md-4">
+            @Html.TextBoxFor(model => model.ShelfNo, new { @class = "form-control", @readonly = "readonly" })
+            @Html.ValidationMessageFor(model => model.ShelfNo)
+        </div>
+
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(model => model.Description, new { @class = "custom_control-label col-md-2" })
+        <div class="col-md-4">
+            @Html.TextBoxFor(model => model.Description, new { @class = "form-control", @readonly = "readonly" })
+            @Html.ValidationMessageFor(model => model.Description)
+        </div>
+
+                @Html.LabelFor(model => model.Category, new { @class = "custom_control-label col-md-2" })
+        <div class="col-md-4">
+            @Html.TextBoxFor(model => model.Category, new { @class = "form-control", @readonly = "readonly" })
+            @Html.ValidationMessageFor(model => model.Category)
+        </div>
+
+    </div>
+    <div class="form-group">
+        @Html.LabelFor(model => model.Description2, new { @class = "custom_control-label col-md-2" })
+        <div class="col-md-4">
+            @Html.TextBoxFor(model => model.Description2, new { @class = "form-control", @readonly = "readonly" })
+            @Html.ValidationMessageFor(model => model.Description2)
+        </div>
+
+        @Html.LabelFor(model => model.Location, new { @class = "custom_control-label col-md-2" })
+        <div class="col-md-4">
+            @Html.TextBoxFor(model => model.Location, new { @class = "form-control", @readonly = "readonly" })
+            @Html.ValidationMessageFor(model => model.Location)
+        </div>
+
+    </div>
+    <div class="form-group">
+        @Html.LabelFor(model => model.ModelType, new { @class = "custom_control-label col-md-2" })
+        <div class="col-md-4">
+            @Html.TextBoxFor(model => model.ModelType, new { @class = "form-control", @readonly = "readonly" })
+            @Html.ValidationMessageFor(model => model.ModelType)
+        </div>
+         @*@Html.LabelFor(model => model.EquipmentType, new { @class = "custom_control-label col-md-2" })
+        <div class="col-md-4">
+            @Html.TextBoxFor(model => model.EquipmentType, new { @class = "form-control", @readonly = "readonly" })
+            @Html.ValidationMessageFor(model => model.EquipmentType)
+        </div>*@
+
+
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(model => model.UOM, new { @class = "custom_control-label col-md-2" })
+        <div class="col-md-4">
+            @Html.TextBoxFor(model => model.UOM, new { @class = "form-control", @readonly = "readonly" })
+            @Html.ValidationMessageFor(model => model.UOM)
+        </div>
+
+         @Html.Label("Blocked", new { @class = "custom_control-label col-md-2" })
+            <div class="col-md-2">
+                        @if (Model.Status == "Active")
+                        {
+                            @Html.CheckBox("Status", false, new { @disabled= "true"  })
+                        }
+                        else { 
+                            @Html.CheckBox("Status", true, new { @disabled= "true"  })
+                        }
+                        
+            </div>
+            @Html.Label("Total Inventory", new { @class = "custom_control-label col-md-1" })
+            <div class="col-md-1">
+                @Html.ActionLink((string)@ViewBag.Inventory, "ItemTracking", new { id = ViewBag.id }, new { @class = "custom_control-label"})
+            </div>
+    </div>
+
+
+
+</div>
+
+<div class="form-horizontal">
+    @Html.Partial("_ItemPartial")
+</div>

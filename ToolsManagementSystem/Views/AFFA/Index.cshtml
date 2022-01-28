@@ -1,0 +1,170 @@
+﻿@{
+    ViewBag.Title = "Index";
+}
+
+<style>
+    tfoot input {
+        width: 100%;
+        padding: 3px;
+        box-sizing: border-box;
+    }
+</style>
+<script src="~/Content/scripts/moment.js"></script>
+
+<h2>Fixed Asset Accountability</h2>
+@if (User.IsInRole("User_Admin") || User.IsInRole("SuperAdmin") || User.IsInRole("Admin"))
+{
+    <div class="col-md-12">
+        <div class="form-group">
+            <i class="glyphicon glyphicon-plus"></i>@Html.ActionLink(" Create New", "Create")
+        </div>
+    </div>
+}
+<table id="tbl" class="display" style="width: 100%">
+    <thead>
+        <tr>
+            <th>FAAF No</th>
+            <th>Employee / Group</th>
+            <th>Employee No</th>
+            @*<th>Designation Name</th>*@
+            <th>Department Name</th>
+            <th>Date Created</th>
+            <th>Status</th>
+            <th style="display:none"></th>
+        </tr>
+        <tr>
+            <th>FAAF No</th>
+            <th>Employee / Group</th>
+            <th>Employee No</th>
+            @*<th>Designation Name</th>*@
+            <th>Department Name</th>
+            <th>Date Created</th>
+            <th>Status</th>
+            <th style="display:none">ID</th>
+        </tr>
+    </thead>
+    <tfoot>
+        <tr>
+            <th>FAAF No</th>
+            <th>Employee / Group</th>
+            <th>Employee No</th>
+            @*<th>Designation Name</th>*@
+            <th>Department Name</th>
+            <th>Date Created</th>
+            <th>Status</th>
+            <th style="display:none">ID</th>
+        </tr>
+    </tfoot>
+</table>
+
+<script>
+    $(function () {
+        $("#datepicker").datepicker();
+    });
+
+
+    $('#tbl thead tr:eq(1) th').each(function () {
+        var title = $(this).text();
+
+        if (title == "ID") {
+            $(this).html('');
+        } else {
+            if (title === "Date Created") {
+                $(this).html('<input type="text" id="datepicker" placeholder="Search ' + title + '" />');
+            } else {
+                $(this).html('<input type="text" placeholder="Search ' + title + '" />');
+            }
+        }
+
+
+    });
+    var table = $('#tbl').DataTable({
+
+        "processing": true,
+        "serverSide": true,
+        "info": true,
+        //"stateSave": true,
+        "lengthMenu": [[50, 100, 150, -1], [50, 100, 150, "All"]],
+        "ajax": {
+            "url": "@Url.Action("dataAccountabilityIndex", "AFFA", new { noCols = 6 })",
+                "type": "POST"
+            },
+                "columns": [
+                   {
+                                            "data": "RefNo"
+                        , "orderable": true
+                        , "render": function (data, type, row, meta) {
+                            var $newLinkTarget = '<a href="@Url.Action("Edit")?id='
+                                +
+                                row['id']
+                                + '">' + data + ' </a>';
+                            return $newLinkTarget;
+                        }
+                    },
+                    { "data": "EmployeeName", "orderable": true },
+                    { "data": "EmployeeNo", "orderable": true },
+                    //{ "data": "DesignationName", "orderable": true },
+                    { "data": "DepartmentName", "orderable": true },
+
+                    {
+                        "data": "DateCreated"
+                        , "orderable": true
+                        , "render": function (value) {
+                            if (value === null) return "";
+                            return moment(value).format('MM/DD/YYYY');
+                        }
+                    },
+                    { "data": "Status", "orderable": true },
+                    {
+                        "data": "id"
+                        , "orderable": true
+                        , "render": function (value) {
+                            var $newLinkTarget = '<a href="@Url.Action("Edit")?id=' + value + '">View</a>';
+                        return $newLinkTarget;
+                        }
+                        , "visible": false
+                    }
+
+            ],
+        "order": [[6, "desc"]]
+        , "orderCellsTop": true
+            });
+
+
+    //// Apply the search
+    //table.columns().every(function (index) {
+    //    $('#tbl thead tr:eq(1) th:eq(' + index + ') input').on('keyup change', function () {
+    //        table.column($(this).parent().index() + ':visible')
+    //            .search(this.value)
+    //            .draw();
+    //    });
+    //});
+
+
+    // Apply the search
+    var delay = (function () {
+        var timer = 0;
+        return function (callback, ms) {
+            clearTimeout(timer);
+            timer = setTimeout(callback, ms);
+        };
+    })();
+
+    $('#tbl input').on('keyup change', function (e) {
+        var keyCode = e.keyCode
+        if (keyCode >= 9 && keyCode <= 27) {
+
+        } else {
+            searchFunction(this);
+        }
+    });
+
+    function searchFunction(e) {
+        delay(function () {
+            table.column($(e).parent().index() + ':visible')
+            .search(e.value)
+            .draw();
+        }, 1000);
+    }
+
+</script>

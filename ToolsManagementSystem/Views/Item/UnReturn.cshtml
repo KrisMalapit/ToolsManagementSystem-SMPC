@@ -1,0 +1,89 @@
+﻿
+
+@model PagedList.IPagedList<ToolsManagementSystem.Models.View_Model.ItemUnReturnViewModel>
+@using PagedList.Mvc;
+
+@{
+    ViewBag.Title = "Un-Return";
+}
+
+<h4>Deployed Items</h4>
+                        <button title="Print Item" type="button" onclick="window.open('@Url.Action("PrintUnreturnItems", new {id = ViewBag.ID })')" class="btn btn-default">
+                            <i class="glyphicon glyphicon-print"></i>
+                        </button>
+
+<table class="table table-striped sortable">
+    <tr>
+         <th>
+            Date Issued
+        </th>
+                 <th>
+           Reference No
+        </th>
+        <th>
+            Serial No
+        </th>
+        <th>
+            Employee ID
+        </th>
+        <th>
+            Employee Name
+        </th>
+
+        <th>
+            Qty Issued
+        </th>
+        
+        <th>
+            Qty Return
+        </th>
+                <th>
+            Lost/Unreturned
+        </th>
+                <th>
+            Status
+        </th>
+
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+         <td>
+            @Html.DisplayFor(modelItem => item.DateIssued)
+        </td>
+                 <td>
+            @Html.DisplayFor(modelItem => item.RefNo)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.SerialNo)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.EmpID)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.EmployeeName)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.QtyIssued)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.QtyReturn)
+        </td>
+                <td>
+            @Html.DisplayFor(modelItem => item.QtyLostUnreturned)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Status)
+        </td>
+        
+
+        
+    </tr>
+}
+
+</table>
+
+Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
+
+@Html.PagedListPager(Model, page => Url.Action("Index",
+    new { page, sortOrder = ViewBag.CurrentSort, currentFilter = ViewBag.CurrentFilter }))

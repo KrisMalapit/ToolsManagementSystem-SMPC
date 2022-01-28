@@ -1,0 +1,117 @@
+﻿@{
+    ViewBag.Title = "StockPosition";
+}
+@{
+    List<SelectListItem> listCategory = new List<SelectListItem>();
+    listCategory.Add(new SelectListItem
+    {
+        Text = "As Of",
+        Value = "AsOf",
+        Selected = true
+    });
+    listCategory.Add(new SelectListItem
+    {
+        Text = "Date Range",
+        Value = "DateRange",
+    });
+   
+}
+
+
+<h2>Stock Position</h2>
+<div class="form-group">
+    <div>@Html.Label("Type of Filter")</div>
+    <div>
+        @Html.DropDownList("FilterType", listCategory, new { @class = "form-control", @id = "filter" })
+    </div>
+</div>
+
+<div class="form-group asof" >
+    <label>As of Date</label>
+    <div class='input-group date col-md-2' id='AsOf'>
+        <input type='text' class="form-control" id="AsOfDate" />
+        <span class="input-group-addon">
+            <span class="glyphicon glyphicon-calendar"></span>
+        </span>
+    </div>
+
+</div>
+<div class="form-group daterange">
+    <label>From</label>
+    <div class='input-group date col-md-2' id='from'>
+        <input type='text' class="form-control" id="fromDate" />
+        <span class="input-group-addon">
+            <span class="glyphicon glyphicon-calendar"></span>
+        </span>
+    </div>
+    <label>To</label>
+    <div class='input-group date col-md-2' id='to'>
+        <input type='text' class="form-control" id="toDate" />
+        <span class="input-group-addon">
+            <span class="glyphicon glyphicon-calendar"></span>
+        </span>
+    </div>
+</div>
+<div class="form-group">
+    
+<button title="Print Item" id="print-item" type="button" class="btn btn-default">
+                    <i class="glyphicon glyphicon-print"></i>
+                </button>
+</div>
+
+
+<script src="~/Content/scripts/moment.js"></script>
+<script src="~/Content/scripts/bootstrap-datetimepicker.min.js"></script>
+
+<script>
+    var filterType = "AsOf";
+    $('#AsOf').datetimepicker({
+        defaultDate: new Date(),
+        format: 'MM/DD/YYYY'
+    });
+    $('#from').datetimepicker({
+        defaultDate: new Date(),
+        format: 'MM/DD/YYYY'
+    });
+    $('#to').datetimepicker({
+        defaultDate: new Date(),
+        format: 'MM/DD/YYYY'
+    });
+    $('#print-item').click(function () {
+        var value = $('#AsOfDate').val();
+        var $asofdate = moment($('#AsOfDate').val()).format('MM/DD/YYYY');
+        var $fromdate = moment($('#fromDate').val()).format('MM/DD/YYYY');
+        var $todate = moment($('#toDate').val()).format('MM/DD/YYYY');
+
+        if (filterType == "AsOf") {
+            window.open('@Url.Action("PrintStockPosition", "Home", new { Type = "DateRange" })' + "&AsOf=" + $asofdate)
+        } else if (filterType == "DateRange") {
+            window.open('@Url.Action("PrintStockPosition", "Home", new { Type = "DateRange" })' + "&FromDate=" + $fromdate + "&ToDate=" + $todate)
+        } else {
+            alert("Please choose filter type")
+        }
+        
+    });
+    $('#filter').select2({
+        width: '100%',
+        theme: 'bootstrap',
+    });
+
+    $('#filter').on('change', function (e) {
+        filterType = $('#filter').val();
+
+        if (filterType == "AsOf") {
+            $('.asof').show()
+            $('.daterange').hide()
+        } else  {
+            $('.asof').hide()
+            $('.daterange').show();
+        } 
+    });
+    $(function () {
+        $('.asof').show()
+        $('.daterange').hide()
+    })
+
+</script>
+

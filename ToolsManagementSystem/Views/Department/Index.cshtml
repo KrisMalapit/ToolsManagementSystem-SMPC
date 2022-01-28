@@ -1,0 +1,110 @@
+﻿@*@model IEnumerable<ToolsManagementSystem.Models.Department>*@
+
+@*@model PagedList.IPagedList<ToolsManagementSystem.Models.Department>*@
+@model PagedList.IPagedList<ToolsManagementSystem.Models.View_Model.UserDeptViewModel>
+
+@using PagedList.Mvc;
+
+
+@{
+    ViewBag.Title = "Index";
+}
+
+
+
+@if ((User.IsInRole("Admin")) || (User.IsInRole("SuperAdmin")))
+{ 
+<div class="col-md-12">
+    <div class="form-group">
+        <i class="glyphicon glyphicon-plus"></i>@Html.ActionLink(" Create New", "Create")
+    </div>
+</div>
+}
+
+
+<div class="col-md-4 ">
+</div>
+<div class="col-md-4">
+</div>
+<div class="col-md-4">
+    <div class="form-group">
+        @using (Html.BeginForm())
+        {
+            <div class="input-group">
+                <input id="SearchString" type="text" class="form-control" placeholder="Search" value="@ViewBag.SearchStr" name="searchString">
+                <div class="input-group-btn">
+                    <button class="btn btn-default" type="submit">
+                        <i class="glyphicon glyphicon-search"></i>
+                    </button>
+                    <button id="btnRefresh" onclick="refreshItems()" class="btn btn-default btn-refresh" title="Filter" name="filter" type="button" data-toggle="dropdown" aria-expanded="false">
+                        <i class="glyphicon glyphicon-refresh icon-refresh"></i>
+                    </button>
+                </div>
+            </div>
+
+        }
+
+    </div>
+</div>
+
+
+<table class="table table-striped table-bordered sortable">
+    <tr>
+        <th>
+            Code
+        </th>
+        <th>
+            Dept Code
+        </th>
+        <th>
+            Name
+        </th>
+        @if (User.IsInRole("SuperAdmin"))
+        {
+            <th></th>}
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => item.Code)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.DeptCode)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Name)
+        </td>
+        @if (User.IsInRole("SuperAdmin"))
+        {
+            <td>
+                @Html.ActionLink("Edit", "Edit", new { id = item.id }) |
+                @Html.ActionLink("Details", "Details", new { id = item.id }) |
+                @Html.ActionLink("Delete", "Delete", new { id = item.id })
+            </td>
+        }
+
+        @if (User.IsInRole("Warehouse_Admin") || User.IsInRole("User"))
+        {
+            <td>
+                @Html.ActionLink("Edit", "Edit", new { id = item.id }) |
+                @Html.ActionLink("Details", "Details", new { id = item.id })
+            </td>
+        }
+    </tr>
+}
+
+</table>
+<br />
+Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
+
+@Html.PagedListPager(Model, page => Url.Action("Index",
+    new { page, sortOrder = ViewBag.CurrentSort, currentFilter = ViewBag.CurrentFilter, searchString=ViewBag.SearchStr }))
+<script>
+    function refreshItems() {
+
+        setTimeout(function () {
+            location.reload();
+        }, 100);
+    }
+</script>

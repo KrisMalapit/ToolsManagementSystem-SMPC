@@ -1,0 +1,182 @@
+﻿@model ToolsManagementSystem.Models.Item
+
+@{
+    ViewBag.Title = "Edit";
+}
+
+<h2>Edit</h2>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    
+    <div class="form-horizontal">
+        <h4>Item</h4>
+        <hr />
+        @Html.ValidationSummary(true)
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.ItemCode, new { @class = "custom_control-label col-md-2" })
+            <div class="col-md-2">
+
+                @Html.TextBoxFor(model => model.ItemCode, new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.ItemCode)
+            </div>
+
+            @Html.LabelFor(model => model.ShelfNo, new { @class = "custom_control-label col-md-2" })
+            <div class="col-md-2">
+
+                @Html.TextBoxFor(model => model.ShelfNo, new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.ShelfNo)
+            </div>
+                        @Html.LabelFor(model => model.UOM, new { @class = "custom_control-label col-md-2" })
+            <div class="col-md-2">
+                <select class="form-control input-sm" id="UOM" name="UOM">
+                    <option>@Model.UOM</option>
+                </select>
+            </div>
+
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Description, new { @class = "custom_control-label col-md-2" })
+            <div class="col-md-2">
+
+                @Html.TextBoxFor(model => model.Description, new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.Description)
+            </div>
+
+            @Html.LabelFor(m => m.Category, new { @class = "custom_control-label col-md-2" })
+            <div class="col-md-2">
+                @Html.DropDownListFor(m => m.Category,
+                                    new SelectList(Enum.GetValues(typeof(ToolsManagementSystem.Models.View_Model.CategoryType))), new { @class = "form-control" })
+                @Html.ValidationMessageFor(m => m.Category, "", new { @class = "text-danger" })
+            </div>
+            @*@Html.LabelFor(model => model.EquipmentType, new { @class = "custom_control-label col-md-2" })
+        <div class="col-md-2">
+
+                <select id="EquipmentType" name="EquipmentType">
+                    <option>@Model.EquipmentType</option>
+                </select>
+
+        </div>*@
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Description2, new { @class = "custom_control-label col-md-2" })
+            <div class="col-md-2">
+
+                @Html.TextBoxFor(model => model.Description2, new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.Description2)
+            </div>
+
+             @Html.LabelFor(model => model.Location, new { @class = "custom_control-label col-md-2" })
+            <div class="col-md-2">
+                @*@Html.EditorFor(model => model.Location)*@
+                @Html.TextBoxFor(model => model.Location, new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.Location)
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.ModelType, new { @class = "custom_control-label col-md-2" })
+            <div class="col-md-2">
+                @Html.TextBoxFor(model => model.ModelType, new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.ModelType)
+            </div>
+
+            @Html.Label("Blocked", new { @class = "custom_control-label col-md-2" })
+            <div class="col-md-2">
+                        @if (Model.Status == "Active")
+                        {
+                            @Html.CheckBox("Status", false)
+                        }
+                        else { 
+                            @Html.CheckBox("Status", true)
+                        }
+                        
+            </div>
+        </div>
+
+
+
+
+
+
+
+
+
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Update" class="btn btn-default" />
+                <input type="button" value="Cancel" onclick="goBack()" class="btn btn-default" />
+            </div>
+
+        </div>
+    </div>
+}
+
+<div>
+    @Html.ActionLink("Back to List", "Index")
+</div>
+<script>
+    function goBack() {
+        window.history.back();
+    }
+
+    $('#UOM').select2({
+        width: '100%',
+        theme: 'bootstrap',
+        ajax: {
+            url: "@Url.Action("SearchItem_UoM", "Item")",
+            dataType: 'json',
+            delay: 300,
+            data: function (params) {
+                return {
+                    q: params.term, // search term
+                    page: params.page
+                };
+            },
+            processResults: function (data, page) {
+                return {
+                    results: data.items
+                };
+            },
+            cache: false
+        },
+        minimumInputLength: 1,
+  
+    });
+
+    $('#EquipmentType').select2({
+        width: '100%',
+        theme: 'bootstrap',
+        ajax: {
+            url: "@Url.Action("SearchItem_EquipmentType", "Item")",
+            dataType: 'json',
+            delay: 300,
+            data: function (params) {
+                return {
+                    q: params.term, // search term
+                    page: params.page
+                };
+            },
+            processResults: function (data, page) {
+                return {
+                    results: data.items
+                };
+            },
+            cache: false
+        },
+        minimumInputLength: 1,
+
+    });
+    
+
+    $('#Category').select2({
+        width: '100%',
+        theme: 'bootstrap',
+
+    });
+</script>

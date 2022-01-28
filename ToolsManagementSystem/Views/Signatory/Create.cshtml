@@ -1,0 +1,107 @@
+﻿@model ToolsManagementSystem.Models.Signatory
+
+@{
+    ViewBag.Title = "Create";
+}
+
+<h2>Create</h2>
+
+@using (Html.BeginForm()) 
+{
+    @Html.AntiForgeryToken()
+    
+    <div class="form-horizontal">
+        <h4>Signatory</h4>
+        <hr />
+        @Html.ValidationSummary(true)
+        <div class="form-group">
+            @Html.LabelFor(model => model.Report, new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.DropDownListFor(model => model.Report,                
+                  new List<SelectListItem> { 
+                       new SelectListItem { Value = "FAISSUE" , Text = "FIXED ASSET ACCOUNTABILITY FORM" },
+                       new SelectListItem { Value = "FARETURN" , Text = "FIXED ASSET ACCOUNTABILITY RELIEF FORM" },
+                    },
+                  new { @class="form-control"})
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(model => model.SignatoryLabel, new { @class = "control-label col-md-2" })
+            <div class="col-md-10"> 
+               @Html.DropDownListFor(model => model.SignatoryLabel,                
+                  new List<SelectListItem> { 
+                       new SelectListItem { Value = "APPROVED BY" , Text = "APPROVED BY" },
+                       new SelectListItem { Value = "ISSUED BY" , Text = "ISSUED BY" },
+                       new SelectListItem { Value = "PREPARED BY" , Text = "PREPARED BY" },
+                       new SelectListItem { Value = "RECEIVED BY" , Text = "RECEIVED BY" },
+                       new SelectListItem { Value = "RECOMMENDING APPROVAL" , Text = "RECOMMENDING APPROVAL" },
+                    },
+                  new { @class="form-control"})
+
+                @Html.ValidationMessageFor(model => model.SignatoryLabel)
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Name, new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.TextBoxFor(model => model.Name,
+                  new { @class="form-control"})
+                @Html.ValidationMessageFor(model => model.Name)
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Designation, new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.TextBoxFor(model => model.Designation,
+                  new { @class="form-control"})
+                @Html.ValidationMessageFor(model => model.Designation)
+            </div>
+        </div>
+
+        
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Company, new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                 @Html.DropDownListFor(model => model.Company,                
+                  new List<SelectListItem> { 
+                       new SelectListItem { Value = "SLPGC" , Text = "SLPGC" },
+                       new SelectListItem { Value = "SCPC" , Text = "SCPC" },
+                       new SelectListItem { Value = "DPC" , Text = "DPC" },
+                       
+                    },
+                  new { @class="form-control"})
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Create" class="btn btn-default" />
+            </div>
+        </div>
+    </div>
+}
+
+<div>
+    @Html.ActionLink("Back to List", "Index")
+</div>
+
+<script>
+    $('#SignatoryLabel').select2({
+        width: '100%',
+        theme: 'bootstrap',
+
+    });
+    $('#Report').select2({
+        width: '100%',
+        theme: 'bootstrap',
+
+    });
+    $('#Company').select2({
+        width: '100%',
+        theme: 'bootstrap',
+
+    });
+</script>

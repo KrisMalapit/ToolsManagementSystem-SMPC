@@ -1,0 +1,357 @@
+﻿@*@model PagedList.IPagedList<ToolsManagementSystem.Models.View_Model.ItemUnReturnViewModel>
+    @using PagedList.Mvc;
+
+    @{
+        ViewBag.Title = "OverDueItems";
+    }
+
+    <h4>OverDue Items</h4>
+
+    <table class="table table-striped sortable">
+        <tr>
+             <th>
+                Item Code
+            </th>
+
+             <th>
+                Description
+            </th>
+            <th>
+               Reference No
+            </th>
+            <th>
+                Date Issued
+            </th>
+            <th>
+                Due Date
+            </th>
+
+            <th>
+                Employee ID
+            </th>
+            <th>
+                Employee Name
+            </th>
+
+            <th>
+                Qty Issued
+            </th>
+
+            <th>
+                Qty Return
+            </th>
+
+
+        </tr>
+
+    @foreach (var item in Model) {
+        <tr>
+             <td>
+                @Html.DisplayFor(modelItem => item.ItemCode)
+            </td>
+                     <td>
+                @Html.DisplayFor(modelItem => item.Description)
+            </td>
+                     <td>
+                @Html.DisplayFor(modelItem => item.RefNo)
+            </td>
+                             <td>
+                @Html.DisplayFor(modelItem => item.DateIssued)
+            </td>
+                             <td>
+                @Html.DisplayFor(modelItem => item.DueDate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.EmpID)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.EmployeeName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.QtyIssued)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.QtyReturn)
+            </td>
+
+
+
+
+        </tr>
+    }
+
+    </table>
+
+    Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
+
+    @Html.PagedListPager(Model, page => Url.Action("OverDueList",
+        new { page, sortOrder = ViewBag.CurrentSort, currentFilter = ViewBag.CurrentFilter,dateRange=ViewBag.DateRange  }))*@
+
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<style>
+    tfoot input {
+        width: 100%;
+        padding: 3px;
+        box-sizing: border-box;
+    }
+</style>
+<link href="~/Content/css/dataTables.checkboxes.css" rel="stylesheet" />
+<script src="~/Content/scripts/dataTables.min.js"></script>
+<script src="~/Content/scripts/dataTables.checkboxes.min.js"></script>
+<script src="~/Content/scripts/moment.js"></script>
+
+<h2>OverDue Items</h2>
+@Html.TextBox("dRange", (String)ViewBag.DateRange, new { style = "display: none;" })
+
+<div id="confirmModal" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title">Confirmation</h4>
+            </div>
+            <div class="modal-body">
+                <p class="text-danger">
+                <p id="message" class="text-default"></p>
+
+                <p><Label style="padding-right:5px;">New Due Date : </Label><input type="text" class="datepicker" name="newDueDate" id="newDueDate" /></p>
+                <h8 class="text-warning">Note: This cannot be reverted</h8>
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal" id="btnProceed">Proceed</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+@if (!User.IsInRole("User_Admin"))
+{
+    if (User.IsInRole("User"))
+    {
+
+    }
+    else
+    {
+        <button id="btnChange">Change Due Date</button>
+    }
+}
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "frm" }))
+{
+    <table id="tbl" class="display" style="width: 100%">
+        <thead>
+            <tr>
+                <th></th>
+                <th>Item Code</th>
+                <th>Description</th>
+                <th>Reference No</th>
+                <th>Date Issued</th>
+                <th>Due Date</th>
+                <th>Employee ID</th>
+                <th>Employee Name</th>
+                <th>Qty Issued</th>
+                <th>Qty Return</th>
+
+            </tr>
+            <tr>
+                <th>ID</th>
+                <th>Item Code</th>
+                <th>Description</th>
+                <th>Reference No</th>
+                <th>Date Issued</th>
+                <th>Due Date</th>
+                <th>Employee ID</th>
+                <th>Employee Name</th>
+                <th>Qty Issued</th>
+                <th>Qty Return</th>
+
+            </tr>
+        </thead>
+        <tfoot>
+            <tr>
+                <th>ID</th>
+                <th>Item Code</th>
+                <th>Description</th>
+                <th>Reference No</th>
+                <th>Date Issued</th>
+                <th>Due Date</th>
+                <th>Employee ID</th>
+                <th>Employee Name</th>
+                <th>Qty Issued</th>
+                <th>Qty Return</th>
+
+            </tr>
+        </tfoot>
+    </table>
+}
+<p>
+
+
+
+    <script>
+    var dRange = $('#dRange').val();
+
+
+    $(function () {
+        $(".datepicker").datepicker();
+    });
+
+
+    $('#tbl thead tr:eq(1) th').each(function () {
+        var title = $(this).text();
+
+        if (title == "ID") {
+            $(this).html('');
+        } else {
+            if (title === "Date Issued" || title === "Due Date") {
+                $(this).html('<input type="text" class="datepicker" placeholder="Search ' + title + '" />');
+            } else {
+                $(this).html('<input type="text" placeholder="Search ' + title + '" />');
+            }
+        }
+
+
+
+    });
+    var table = $('#tbl').DataTable(
+        {
+            "processing": true,
+            "serverSide": true,
+            "info": true,
+            "lengthMenu": [[10, 20, 50, -1], [10, 20, 50, "All"]],
+            "ajax": {
+                "url": "@Url.Action("dataOverDueList", "Item", new { noCols = 10 })" + "&dateRange=" + encodeURIComponent(dRange),
+            "type": "POST"
+        },
+            'columnDefs': [
+              {
+                  'targets': 0,
+                  'checkboxes': {
+                      'selectRow': true
+                  }
+              }
+            ],
+            'select': {
+                'style': 'multi'
+            },
+            "columns": [
+                    { "data": "id" },
+                    { "data": "ItemCode", "orderable": true },
+                    { "data": "Description", "orderable": true },
+                    { "data": "RefNo", "orderable": true },
+                    {
+                          "data": "DateIssued"
+                        , "orderable": true
+                        , "render": function (value) {
+                            if (value === null) return "";
+                            return moment(value).format('MM/DD/YYYY');
+                        }
+                    },
+                    {
+                          "data": "DueDate"
+                        , "orderable": true
+                        , "render": function (value) {
+                            if (value === null) return "";
+                            return moment(value).format('MM/DD/YYYY');
+                        }
+                    },
+                    { "data": "EmpID", "orderable": true },
+                    { "data": "EmployeeName", "orderable": true },
+                    { "data": "QtyIssued", "orderable": true },
+                    { "data": "QtyReturn", "orderable": true },
+
+@*                    {
+                       "data": "id"
+                            , "orderable": true
+                            , "render": function (value) {
+                                var $newLinkTarget = '<a href="@Url.Action("Edit")?id=' + value + '">View</a>';
+                            return $newLinkTarget;
+                        }
+                    }*@
+
+            ],
+             "order": [[1, "asc"]]
+        ,    "orderCellsTop": true
+        });
+
+
+    // Apply the search
+    table.columns().every(function (index) {
+        $('#tbl thead tr:eq(1) th:eq(' + index + ') input').on('keyup change', function () {
+            table.column($(this).parent().index() + ':visible')
+                .search(this.value)
+                .draw();
+        });
+    });
+
+    $('#btnChange').click(function () {
+        var ids = getIdSelections();
+
+        if (ids=="") {
+            alert("No row selected");
+            return false;
+        }
+
+        document.getElementById('message').innerHTML = "Set new Due Date for all selected rows."
+        $('#confirmModal').modal('show');
+
+
+
+
+    })
+    $('#btnProceed').click(function () {
+
+        var ids = getIdSelections();
+
+        if (ids == "") {
+            alert("No row selected");
+            return false;
+        }
+
+        if ($('#newDueDate').val()=="") {
+            alert("No date specified");
+            return false;
+        }
+
+        $.ajax({
+            url: "@Url.Action("SetNewDueDate", "Item")"
+                , method: "post"
+                , dataType: "json"
+                , data: { itemid: ids, duedate: $('#newDueDate').val() }
+                , success: function (responseData) {
+                    if (responseData.message == "success") {
+                        $.notify("Row/s Updated", {
+                            type: 'success', placement: {
+                            align: 'center'
+                            }
+                        });
+                        table.ajax.reload();
+                    } else {
+                        alert(responseData.message);
+                    }
+                }
+       });
+
+
+    })
+
+    function getIdSelections() {
+        var form = $('#frm');
+        var rows_selected = table.column(0).checkboxes.selected();
+        var data = '';
+        // Iterate over all selected checkboxes
+        $.each(rows_selected, function (index, rowId) {
+            if (data == "") {
+                data = rowId;
+            } else {
+                data = data + "," + rowId;
+            }
+
+        });
+        return data;
+    }
+    </script>

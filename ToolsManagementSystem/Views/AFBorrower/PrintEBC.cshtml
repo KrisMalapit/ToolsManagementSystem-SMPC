@@ -1,0 +1,12 @@
+﻿@using ReportViewerForMvc; 
+
+@{
+    ViewBag.Title = "PrintEBC";
+}
+
+@Html.ReportViewer(ViewBag.ReportViewer as Microsoft.Reporting.WebForms.ReportViewer)
+
+<div class="form-group">
+    <button id ="btnPrint">Print this report</button>
+</div>
+

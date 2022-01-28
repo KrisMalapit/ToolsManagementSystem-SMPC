@@ -1,0 +1,58 @@
+﻿@model ToolsManagementSystem.Models.AFEmployee
+
+@{
+    ViewBag.Title = "Details";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>AFEmployee</h4>
+	<hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.EACNo)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.EACNo)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.EmployeeID)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.EmployeeID)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.EmployeeNo)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.EmployeeNo)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.DesignationName)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.DesignationName)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.DepartmentName)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.DepartmentName)
+        </dd>
+
+    </dl>
+</div>
+<p>
+    @Html.ActionLink("Edit", "Edit", new { id = Model.id }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>

@@ -1,0 +1,117 @@
+﻿@model IEnumerable<ToolsManagementSystem.Models.ItemDetail>
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Index</h2>
+
+<p>
+    @Html.ActionLink("Create New", "Create")
+</p>
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.Items.ItemCode)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.FACardNo)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.PropertyNo)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Description)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Description2)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.PO)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.SerialNo)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Qty)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.ModelType)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.UoM)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.UnitCost)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.ShelfNo)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.DateAdjusted)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.ToolStatus)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Notes)
+        </th>
+        <th></th>
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => item.Items.ItemCode)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.FACardNo)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.PropertyNo)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Description)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Description2)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.PO)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.SerialNo)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Qty)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.ModelType)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.UoM)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.UnitCost)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.ShelfNo)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.DateAdjusted)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.ToolStatus)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Notes)
+        </td>
+        <td>
+            @Html.ActionLink("Edit", "Edit", new { id=item.id }) |
+            @Html.ActionLink("Details", "Details", new { id=item.id }) |
+            @Html.ActionLink("Delete", "Delete", new { id=item.id })
+        </td>
+    </tr>
+}
+
+</table>

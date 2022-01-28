@@ -1,0 +1,2894 @@
+﻿@model ToolsManagementSystem.Models.AFFA
+
+@{
+    ViewBag.Title = "Edit";
+}
+
+
+<link href="~/Content/css/bootstrap-toggle.css" rel="stylesheet" />
+<script src="~/Content/scripts/bootstrap-toggle.js"></script>
+<style>
+    #tblReturn td {
+        border: 1px solid lightgrey;
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    #tblReturn th {
+        border: 1px solid white;
+        color: white;
+        text-align: center;
+        vertical-align: middle;
+    }
+    .custommodal-lg {
+    width: 1100px;
+    margin: 30px auto;
+    }
+
+</style>
+<div class="form-horizontal">
+    <div id="confirmModal" class="modal fade">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title">Confirmation</h4>
+                </div>
+                <div class="modal-body">
+                    <p class="text-danger">
+                        <p id="message" class="text-default"></p>
+                        <h8 class="text-warning">Note: This cannot be reverted</h8>
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-dismiss="modal" id="btnProceed">Proceed</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+        <div id="multipleReturnModal" class="modal fade">
+        <div class="modal-dialog modal-lg custommodal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title">Return Items</h4>
+                </div>
+                <div class="modal-body">
+                    <div style="display:none">
+                            @Html.Label("FAARF No", new { @class = "custom_column-label col-md-2" })
+                            <div class="col-md-4">
+                                @Html.TextBox("FAARFNo_ri", null, new { @class = "form-control", required = "required", @readonly = "readonly", @Name = "FAARFNo" })
+                            </div>
+                    </div>
+
+
+                    <table id="tblReturn" class="display" style="width: 100%">
+                        <thead style="background-color: maroon;">
+                            <tr>
+                                <th style="display:none">Row ID</th>
+                                <th style="display:none">REF No</th>
+                                <th>Item Code</th>
+                                <th>Description</th>
+                                <th>Issued</th>
+                                <th>Returned</th>
+                                <th>Date</th>
+                                <th>Tool Status</th>
+                                <th>Recommendation</th>
+                                <th>Findings/Observation</th>
+                                <th>Remarks</th>
+                            </tr>
+                        </thead>
+                        <tbody >
+                            <tr>
+                                <td style="display:none"></td>
+                                <td style="display:none"></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                        </tbody>
+
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal" id="btnMultipleReturn">Submit</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="IssuanceModal" role="dialog" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Create / Modify Entry</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-success" id="alertbox-issue" style="display: none">
+                        <strong>Success!</strong> Transaction save.
+                    </div>
+                    <div class="alert alert-danger" id="alertbox-error-issue" style="display: none">
+                        <strong>Failed! </strong>Oops! Something went wrong.
+                        <div id="statmessage"></div>
+                    </div>
+                    @using (Html.BeginForm(null, null, FormMethod.Post, new { id = "frm" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        @Html.TextBox("AFFAID", (int)@ViewBag.id, new { @class = "form-control", style = "display: none;" })
+                        @Html.TextBox("id", null, new { @class = "form-control", style = "display: none;" })
+                        @Html.ValidationSummary(true)
+
+                        <div class="form-group">
+                            @Html.Label("Item Code", new { @class = "custom_column-label col-md-2" })
+                            <div class="col-md-4 issuancetool">
+                                <select class="form-control input-sm" id="ItemID" name="ItemID" tabindex = 1>
+                                    <option>Select Item</option>
+                                </select>
+                                @Html.ValidationMessage("SubFACardNo")
+                            </div>
+                            @Html.Label("Unit of Measure", new { @class = "custom_column-label col-md-2" })
+                            <div class="col-md-4">
+                                @Html.TextBox("UoM", null, new { @class = "form-control", @readonly = "readonly" })
+                            </div>
+                        </div>
+                        <div class="form-group cme">
+                            @Html.Label("Serial No", new { @class = "custom_column-label col-md-2" })
+                            <div class="col-md-4 issuancetool">
+                                <select class="form-control input-sm" id="SerialNo" name="SerialNo" tabindex = 2>
+                                    <option value=""></option>
+                                </select>
+                            </div>
+                             @Html.Label("Unit Cost", new { @class = "custom_column-label col-md-2" })
+                            <div class="col-md-4">
+                                @Html.TextBox("UnitCost", (decimal)0, new { @class = "form-control", @readonly = "readonly", @style = "text-align:right" })
+                            </div>
+
+                        </div>
+                        <div class="form-group cme">
+                            @Html.Label("PO", new { @class = "custom_column-label col-md-2" })
+                            <div class="col-md-4">
+                               <select class="form-control input-sm" id="PO" name="PO" tabindex = 3>
+                                    <option value=""></option>
+                                </select>
+                            </div>
+                            @Html.Label("Amount", new { @class = "custom_column-label col-md-2" })
+                            <div class="col-md-4">
+                                @Html.TextBox("Amount", (decimal)0, new { @class = "form-control", @readonly = "readonly", @style = "text-align:right" })
+                            </div>
+
+
+                        </div>
+                        <div class="form-group cme">
+                            @Html.Label("Quantity", new { @class = "custom_column-label col-md-2" })
+                            <div class="col-md-4">
+                                @Html.TextBox("Quantity", (decimal)1, new { @class = "form-control", required = "required", @onblur = "setToInt(this)", @tabindex = 4 })
+                            </div>
+                            @Html.Label("Date Issued", new { @class = "custom_column-label col-md-2" })
+                            <div class="col-md-4">
+                                <div class='input-group date datepicker' id='DateIssue'>
+                                    <input name="DateIssued" id="DateIssued" type='text' class="form-control" tabindex = 6 />
+                                    <span class="input-group-addon">
+                                        <span class="glyphicon glyphicon-calendar"></span>
+                                    </span>
+                                </div>
+                            </div>
+
+                        </div>
+                        
+                        <div class="form-group cme">
+                            @Html.Label("FA Card No", new { @class = "custom_column-label col-md-2" })
+                            <div class="col-md-4">
+                                @Html.TextBox("FACardNo", null, new { @class = "form-control", required = "required", @readonly = "readonly" })
+                            </div>
+                            @Html.Label("PropertyNo", new { @class = "custom_column-label col-md-2" })
+                            <div class="col-md-4">
+                                @Html.TextBox("PropertyNo", null, new { @class = "form-control", @readonly = "readonly" })
+                            </div>
+                        </div>
+                        
+                        <div class="form-group cme">
+                            @Html.Label("Category", new { @class = "custom_column-label col-md-2" })
+                            <div class="col-md-4">
+                                @Html.TextBox("Category", null, new { @class = "form-control", @readonly = "readonly" })
+                            </div> 
+                            @Html.Label("Account Code", new { @class = "custom_column-label col-md-2" })
+                            <div class="col-md-4">
+                                @Html.TextBox("AccountCode", null, new { @class = "form-control", @tabindex = 7 })
+                            </div>
+                            
+                        </div>
+                        <div class="form-group">
+                            @Html.Label("Remarks", new { @class = "custom_column-label col-md-2" })
+                            <div class="col-md-4 issuancetool">
+                                @Html.TextArea("Remarks", null, new { @class = "form-control", @tabindex = 5 })
+                            </div>
+                            @Html.Label("Total Inventory", new { @class = "custom_column-label col-md-2" })
+                            <div class="col-md-4">
+                                @Html.TextBox("Inventory", null, new { @class = "form-control", @readonly = "readonly" })
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-default" id="Save" tabindex = 8>Save</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal" tabindex = 9>Close</button>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <div class="modal fade" id="ReturnModal" role="dialog" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+
+                @Html.AntiForgeryToken()
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Create / Modify Entry (Return)</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-success" id="alertbox" style="display: none">
+                        <strong>Success!</strong> Transaction save.
+                    </div>
+                    <div class="alert alert-danger" id="alertbox-error" style="display: none">
+                        <strong>Failed!</strong> Oops! Something went wrong .
+                        <div id="statmessage_return"></div>
+                    </div>
+
+                    @using (Html.BeginForm(null, null, FormMethod.Post, new { id = "frmRet" }))
+                    {
+                        @Html.TextBox("afissueid", null, new { @class = "form-control", style = "display: none;", @Name = "AFFAIssueID" })
+                        @Html.TextBox("afretid", null, new { @class = "form-control", style = "display: none;", @Name = "id" })
+                        @Html.ValidationSummary(true)
+                        <div class="form-group">
+                            @Html.Label("FAARF No", new { @class = "custom_column-label col-md-2" })
+                            <div class="col-md-4">
+                                @Html.TextBox("FAARFNo", null, new { @class = "form-control", required = "required", @readonly = "readonly" })
+                            </div>
+                            @Html.Label("Unit of Measure", new { @class = "custom_column-label col-md-2" })
+                            <div class="col-md-4">
+                                @Html.TextBox("UoM_R", null, new { @class = "form-control", @readonly = "readonly" })
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            @Html.Label("Item Code", new { @class = "custom_column-label col-md-2" })
+                            <div class="col-md-4">
+                                @Html.TextBox("ItemDescription_R", null, new { @class = "form-control", @readonly = "readonly" })
+                            </div>
+                            @Html.Label("Quantity Return", new { @class = "custom_column-label col-md-2" })
+                            <div class="col-md-4">
+                                @Html.TextBox("Quantity_R", (decimal)0, new { @class = "form-control", required = "required", @Name = "Quantity", @onblur = "setToInt(this)" })
+                            </div>
+                        </div>
+                        <div class="form-group cme">
+                            @Html.Label("Serial No", new { @class = "custom_column-label col-md-2" })
+                            <div class="col-md-4 issuancetool">
+                                @Html.TextBox("SerialNo_R", null, new { @class = "form-control", @readonly = "readonly" })
+                            </div>
+                            @Html.Label("Date Return", new { @class = "custom_column-label col-md-2" })
+                            <div class="col-md-4">
+                                <div class='input-group date datepicker' id='DateReturned'>
+                                    <input name="DateReturned" id="DateReturn" type='text' class="form-control" />
+                                    <span class="input-group-addon">
+                                        <span class="glyphicon glyphicon-calendar"></span>
+                                    </span>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="form-group cme">
+                            @Html.Label("PO", new { @class = "custom_column-label col-md-2" })
+                            <div class="col-md-4">
+                                @Html.TextBox("PO_R", null, new { @class = "form-control", @readonly = "readonly" })
+                            </div>
+                            @Html.Label("Tool Status", new { @class = "column-label col-md-2", required = "required" })
+                            <div class="col-md-4">
+                                @Html.DropDownList("ToolStatus",
+                                        new SelectList(Enum.GetValues(typeof(ToolsManagementSystem.Models.View_Model.ToolStatus)), "Serviceable"), new { @class = "form-control", @required = "required" })
+
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            @Html.Label("Recommendation", new { @class = "custom_column-label col-md-2" })
+                            <div class="col-md-4 issuancetool">
+                                @*@Html.TextArea("Recommendation", null, new { @class = "form-control", @Name = "Recommendation" })*@
+
+                                @Html.DropDownList("Recommendation",
+                                 new SelectList(new List<SelectListItem>
+                                                  {
+                                                      new SelectListItem { Text = " " , Value = " "},
+                                                      new SelectListItem { Text = "For Deduction" , Value = "For Deduction"},
+                                                      new SelectListItem { Text = "For Repair" , Value = "For Repair"},
+                                                      new SelectListItem { Text = "For Disposal", Value = "For Disposal" }
+                                                      //,new SelectListItem { Text = "For Disposal - Auction", Value = "For Disposal - Auction" },
+                                                      //new SelectListItem { Text = "For Disposal - Donation", Value = "For Disposal - Donation" }
+                                                  },
+                                                    "Value",
+                                                    "Text",
+                                                    "True"),
+                                                     new { @class = "form-control" })
+
+                            </div>
+                            @Html.Label("Remarks", new { @class = "custom_column-label col-md-2" })
+                            <div class="col-md-4 issuancetool">
+                                @Html.TextArea("Remarks_R", null, new { @class = "form-control", @Name = "Remarks",@style="height:34px;" })
+                            </div>
+
+                        </div>
+                         <div class="form-group">
+                            @Html.Label("Findings / Observation", new { @class = "custom_column-label col-md-2" })
+                            <div class="col-md-4">
+                               
+                                @Html.DropDownList("FindingsObservation",
+                                        new SelectList(Enum.GetValues(typeof(ToolsManagementSystem.Models.View_Model.FindingsObservation)), "Operational"), new {@name="FindingsObservation", @class = "form-control", @required = "required" })
+                            </div>
+                            
+                        </div>
+
+                    }
+
+                </div>
+
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-default" id="SaveRet">Save</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+
+
+            </div>
+
+        </div>
+    </div>
+    <div class="modal fade" id="ReturnAllModal" role="dialog" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+
+                @Html.AntiForgeryToken()
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Return All</h4>
+                </div>
+                <div class="modal-body">
+                    <p class="text-danger">
+                        <p class="text-default">Verify all data are properly filled before proceeding.</p>
+                        <h8 class="text-warning">Note: This cannot be reverted</h8>
+                    </p>
+
+                    <div class="alert alert-success" id="alertbox-return" style="display: none">
+                        <strong>Success!</strong> Transaction save.
+                    </div>
+                    <div class="alert alert-danger" id="alertbox-error-return" style="display: none">
+                        <strong>Failed!</strong> Oops! Something went wrong .
+                       
+                    </div>
+
+                    @using (Html.BeginForm(null, null, FormMethod.Post, new { id = "frmRetAll" }))
+                    {
+                        @Html.TextBox("afissueid", null, new { @class = "form-control", style = "display: none;", @Name = "AFEmployeeIssueID" })
+                        
+                        @Html.ValidationSummary(true)
+                        <div class="form-group">
+                            @Html.Label("FAARF No", new { @class = "custom_column-label col-md-2" })
+                            <div class="col-md-4">
+                                @Html.TextBox("FAARFNo_ra", null, new { @class = "form-control", required = "required", @readonly = "readonly", @Name = "FAARFNo" })
+                            </div>
+                            @Html.Label("Date Return", new { @class = "custom_column-label col-md-2" })
+                            <div class="col-md-4">
+                                <div class='input-group date datepicker' id='DateReturned_A'>
+                                    <input name="DateReturned" id="DateReturn_A" type='text' class="form-control" />
+                                    <span class="input-group-addon">
+                                        <span class="glyphicon glyphicon-calendar"></span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            @Html.Label("Tool Status", new { @class = "custom_column-label col-md-2", required = "required" })
+                            <div class="col-md-4">
+                                @Html.DropDownList("ToolStatus_A",
+                                        new SelectList(Enum.GetValues(typeof(ToolsManagementSystem.Models.View_Model.ToolStatus)), "Serviceable"), new { @class = "form-control", @required = "required", @name = "ToolStatus" })
+                            </div>
+                            @Html.Label("Remarks", new { @class = "column-label col-md-2" })
+                            <div class="col-md-4 issuancetool">
+                                @Html.TextArea("Remarks_R_A", null, new { @class = "form-control", @Name = "Remarks" })
+                            </div>
+
+                        </div>
+                         <div class="form-group">
+                             @Html.Label("Recommendation", new { @class = "custom_column-label col-md-2" })
+                            <div class="col-md-4 issuancetool">
+                                @*@Html.TextArea("Recommendation", null, new { @class = "form-control", @Name = "Recommendation" })*@
+
+                                @Html.DropDownList("Recommendation",
+                                 new SelectList(new List<SelectListItem>
+                                                  {
+                                                      new SelectListItem { Text = " " , Value = " "},
+                                                      new SelectListItem { Text = "For Deduction" , Value = "For Deduction"},
+                                                      new SelectListItem { Text = "For Repair" , Value = "For Repair"},
+                                                      new SelectListItem { Text = "For Disposal", Value = "For Disposal" }
+                                                      //,new SelectListItem { Text = "For Disposal - Auction", Value = "For Disposal - Auction" },
+                                                      //new SelectListItem { Text = "For Disposal - Donation", Value = "For Disposal - Donation" }
+                                                  },
+                                                    "Value",
+                                                    "Text",
+                                                    "True"),
+                                                     new { @class = "form-control",@id = "Recommendation2" })
+
+                            </div>
+                            @Html.Label("Findings / Observation", new { @class = "custom_column-label col-md-2" })
+                            <div class="col-md-4">
+                               
+                                @Html.DropDownList("FindingsObservation_2",
+                                        new SelectList(Enum.GetValues(typeof(ToolsManagementSystem.Models.View_Model.FindingsObservation)), "Operational"), new {@name="FindingsObservation", @class = "form-control", @required = "required" })
+                            </div>
+                            
+                        </div>
+                    }
+
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" id="btnReturnAll">Return All</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+
+
+            </div>
+
+        </div>
+    </div>
+    <div class="modal fade" id="TransferModal" role="dialog" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+
+                @Html.AntiForgeryToken()
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Transfer</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-success" id="alertbox-transfer" style="display: none">
+                        <strong>Success!</strong> Transaction save.
+                    </div>
+                    <div class="alert alert-danger" id="alertbox-error-transfer" style="display: none">
+                        <strong>Failed!</strong> Oops! Something went wrong .
+                       
+                    </div>
+
+                    @using (Html.BeginForm(null, null, FormMethod.Post, new { id = "frmTrans" }))
+                    {
+                        @Html.TextBox("afissueid2", null, new { @class = "form-control", style = "display: none;", @Name = "AFFAIssueID" })
+                        @Html.ValidationSummary(true)
+                        <div class="form-group">
+                            @Html.Label("FAAF No", new { @class = "custom_control-label col-md-2", @required = "required" })
+                            <div class="col-md-4">
+
+                                @Html.TextBox("FAAFNo2", null, new { @class = "form-control", @readonly = "readonly", @Name = "FAAFNo" })
+                                @Html.ValidationMessageFor(model => model.FAAFNo)
+                            </div>
+                            @Html.Label("Desig Name", new { @class = "custom_control-label col-md-2" })
+                            <div class="col-md-4">
+                                @Html.TextBox("DesignationName2", null, new { @class = "form-control", @readonly = "readonly", @Name = "DesignationName" })
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            @Html.Label("Employee Name", new { @class = "custom_control-label col-md-2" })
+                            <div class="col-md-4">
+                                <select class="form-control input-sm" id="EmployeeID2" name="EmployeeID">
+                                    <option>Select Employee </option>
+                                </select>
+                                @Html.ValidationMessageFor(model => model.EmployeeID)
+
+                            </div>
+                            @Html.Label("Dept Name", new { @class = "custom_control-label col-md-2" })
+                            <div class="col-md-4">
+                                @Html.TextBox("DepartmentName2", null, new { @class = "form-control", @readonly = "readonly", @Name = "DepartmentName" })
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            @Html.Label("Employee No", new { @class = "custom_control-label col-md-2" })
+                            <div class="col-md-4">
+                                @Html.TextBox("EmployeeNo2", null, new { @class = "form-control", @readonly = "readonly", @Name = "EmployeeNo" })
+                            </div>
+
+                        </div>
+                       
+
+                    }
+
+                </div>
+
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-default" id="btnTransfer">Transfer</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+
+
+            </div>
+
+        </div>
+    </div>
+    <div id="membersModal" class="modal fade">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title">Group Members</h4>
+                </div>
+                <div class="modal-body">
+                    <table id="tblGroupMembers" class="display" style="width: 100%">
+                        <thead>
+                            <tr>
+                                <th>Employee ID</th>
+                                <th>Employee Name</th>
+                            </tr>
+                        </thead>
+                        <tfoot>
+                            <tr>
+                                <th>Employee ID</th>
+                                <th>Employee Name</th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+    
+    <div class="form-horizontal">
+        @using (Html.BeginForm())
+        {
+    @Html.AntiForgeryToken()
+        @Html.ValidationSummary(true)
+        <div class="form-group">
+            @Html.LabelFor(model => model.FAAFNo, new { @class = "custom_control-label col-md-2" })
+            <div class="col-md-2">
+                @Html.TextBoxFor(model => model.FAAFNo, new { @class = "form-control", @readonly = "readonly" })
+                @Html.ValidationMessageFor(model => model.FAAFNo)
+            </div>
+            @Html.Label("Designation Name", new { @class = "custom_control-label  col-md-2" })
+            <div class="col-md-2">
+                @Html.TextBoxFor(model => model.Employees.Designations.Name, new { @class = "form-control", @readonly = "readonly" })
+            </div>
+            @Html.Label("Group Accountability", new { @class = "custom_control-label  col-md-2" })
+            <div class="col-md-2">
+                @Html.TextBox("GroupName", (string)ViewBag.GroupName, new { @class = "form-control", @readonly = "readonly" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.Label("Employee Name", new { @class = "custom_control-label  col-md-2" })
+            <div class="col-md-2">
+                @Html.DropDownList("EmployeeID", null, "Select Employee", new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.EmployeeID)
+            </div>
+            @Html.Label("Department Name", new { @class = "custom_control-label  col-md-2" })
+            <div class="col-md-2">
+                @Html.TextBoxFor(model => model.Employees.Departments.Name, new { @class = "form-control", @readonly = "readonly" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.Label("Employee No", new { @class = "custom_control-label  col-md-2" })
+            <div class="col-md-2">
+                @Html.TextBoxFor(model => model.Employees.EmpId, new { @class = "form-control", @readonly = "readonly" })
+            </div>
+
+
+
+            @Html.Label("Status", new { @class = "custom_control-label col-md-2" })
+
+            @if (User.IsInRole("User") || User.IsInRole("User_Admin"))
+            {
+                if (Model.DocStatus == 0)
+                {
+                    <div class="col-md-2">
+                        @Html.TextBox("StatusUser", "Open", new { @class = "form-control", @readonly = "readonly" })
+                    </div>
+                }
+                else if (Model.DocStatus == 1)
+                {
+                    <div class="col-md-2">
+                        @Html.TextBox("StatusUser", "Released", null, new { @class = "form-control", @readonly = "readonly" })
+                    </div>
+                }
+                else if (Model.DocStatus == 2)
+                {
+
+                    <div class="col-md-2">
+                        @Html.TextBox("StatusUser", "Closed", null, new { @class = "form-control", @readonly = "readonly" })
+                    </div>
+                }
+                else
+                {
+                    <div class="col-md-2">
+                        @Html.TextBox("StatusUser", "Cancelled", null, new { @class = "form-control", @readonly = "readonly" })
+                    </div>}
+            }
+            else
+            {
+
+                <div class="col-md-2">
+                    @Html.TextBox("Status", null, new { @class = "form-control", @readonly = "readonly", style = "display: none;" })
+                    <input id="toggleStatus" data-onstyle="success" data-offstyle="warning" type="checkbox">
+                </div>
+            }
+
+
+
+        </div>
+        }
+        <div class="form-group">
+            <div class="col-md-4" style="text-align: left">
+                <button id="btnGroup">View Group Members</button>
+                @if (User.IsInRole("SuperAdmin"))
+                {
+                    <button id="btnRelease" class="btn-danger">Set Release [Admin use only]</button>
+                }
+            </div>
+        </div>
+    </div>
+
+
+
+
+@*----------------------------------------------------************  ISSUANCE  ********--------------------------------------------------------------*@
+@*----------------------------------------------------*********************************--------------------------------------------------------------*@
+
+<div id="divissuance">
+    <div class="panel-group">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title">
+                    <a data-toggle="collapse" href="#issuance">Issuance</a>
+                </h4>
+            </div>
+            <div id="issuance" class="panel-collapse collapse in">
+                <div class="panel-body">
+                    <div id="toolbar">
+                        <button id="add-item" class="btn btn-default toolbtn" title="Add Item">
+                            <i class="glyphicon glyphicon-plus"></i>
+                        </button>
+                        <button id="edit-item" class="def btn btn-default toolbtn" disabled="" title="Edit Item">
+                            <i class="glyphicon glyphicon-edit"></i>
+                        </button>
+                        <button title="Refresh" name="refresh" type="button" class="btn btn-default btn-filter" id="btnRefresh" data-toggle="dropdown">
+                            <i class="glyphicon glyphicon-refresh icon-refresh"></i>
+                        </button>
+                        <button id="remove-item" class="def btn btn-danger toolbtn" disabled title="Delete">
+                            <i class="glyphicon glyphicon-trash"></i>
+                        </button>
+                        <button id="return-item" class="def btn btn-default toolbtn" disabled title="Return Item/s">
+                            <i class="glyphicon glyphicon-retweet"></i>
+                        </button>
+                        <button id="transfer-item" class="def btn btn-default toolbtn" disabled title="Transfer Item/s">
+                            <i class="glyphicon glyphicon-transfer"></i>
+                        </button>
+
+
+                        <button title="Print Item" id="print-item" onclick="window.open('@Url.Action("PrintFAAF_Issue", new { FAAFNo = Model.FAAFNo, EmpID = Model.EmployeeID })')" type="button" class="btn btn-default">
+                            <i class="glyphicon glyphicon-print"></i>
+                        </button>
+
+
+@*                        <div class="col-md-12">
+                            <div class="form-group">
+                                <i class="glyphicon glyphicon-print"></i>@Html.ActionLink(" Print", "PrintEBC", new {EBCNo = Model.EBCNo}, new { target = "_blank" })
+                            </div>
+                        </div>*@
+                    </div>
+                    <table  id="table" class="table table-bordered table-striped" style="clear: both"
+                        data-toggle="table"
+                        data-url="@Url.Action("GetAFFADetails", "AFFA", new { afid = @ViewBag.ID })"
+                        data-side-pagination="server"  
+                        data-filter-control="true"      
+                        data-page-list="[5, 10, 20, 50, 100, 200]"
+                        data-toolbar="#toolbar"
+                        data-height="auto"
+                        data-show-columns="true" 
+                        data-show-toggle="true"
+                        data-pagination="true" 
+                        data-id-field="id"
+                        data-search="true"
+    >
+                        <thead>
+                            <tr>
+                                <th data-field="state" data-checkbox="true" data-formatter="stateFormatter"></th>
+                                <th data-field="ItemID" data-halign="center">Item ID</th>
+                                <th data-field="ItemCode" data-halign="center"data-filter-control="input">Item Code</th>
+                                <th data-field="Description" data-halign="center"data-filter-control="input">Description</th>
+                                <th data-field="ModelType" data-halign="center"data-filter-control="input">Model</th>
+                                <th data-field="SerialNo" data-halign="center"data-filter-control="input">Serial No</th>
+                                <th data-field="PO" data-halign="center"data-filter-control="input">PO</th>
+                                <th data-field="Quantity" data-halign="center" class="text-right"data-filter-control="input">Quantity</th>
+                                <th data-field="qtyret" data-halign="center" class="text-right"data-filter-control="input">Qty Returned</th>
+                                <th data-field="qtytrans" data-halign="center" class="text-right"data-filter-control="input">Qty Transferred</th>
+                                <th data-field="rembal" data-halign="center" class="text-right"data-filter-control="input">Rem. Balance</th>
+                                <th data-field="UoM" data-halign="center"data-filter-control="input">U/M</th>
+                                <th data-field="UnitCost" data-halign="center" class="text-right" data-formatter="currencyFormatter"data-filter-control="input">Unit Cost</th>
+                                <th data-field="FACardNo" data-halign="center" class="text-right"data-filter-control="input">FA Card No</th>
+                                <th data-field="PropertyNo" data-halign="center"data-filter-control="input">Property No</th>
+                                <th data-field="DateIssued" data-halign="center" class="text-right" data-formatter="dateFormat"data-filter-control="input">Date Issued</th>
+                                
+                                <th data-field="Status" data-halign="center" data-visible="false">Status</th>
+                                <th data-field="Remarks" data-halign="center"data-filter-control="input">Remarks</th>
+                                <th data-field="AccountCode" data-halign="center" data-visible="false">Account Code</th>
+                                <th data-field="action" data-formatter="actionFormatter" data-align="left" data-width="151px" data-halign="center">Action</th>
+                             </tr>
+                        </thead>
+                    </table>
+                </div>
+                <div class="panel-footer"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@*----------------------------------------------------************    RETURN   ********--------------------------------------------------------------*@
+@*----------------------------------------------------*********************************--------------------------------------------------------------*@
+
+@*"@Url.Action("GetAFEmpDetailsReturn", "AFEmployee", new { afid = @ViewBag.ID })"*@
+<div id="divreturn">
+    <div class="panel-group">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title">
+                    <a data-toggle="collapse" href="#return">Return</a>
+                </h4>
+            </div>
+            <div id="return" class="panel-collapse collapse in">
+                <div class="panel-body">
+                    <div id="toolbar2">
+
+                        <button id="edit-item2" class="def btn btn-default toolbtn" disabled="" title="Edit Item">
+                            <i class="glyphicon glyphicon-edit"></i>
+                        </button>
+                        <button title="View all" name="refresh" type="button" class="btn btn-default btn-filter" id="view-all-return" data-toggle="dropdown">
+                            <i class="glyphicon glyphicon-search"></i>
+                        </button>
+                         @*@Html.ActionLink(" Print", "PrintFAAF_Return","AFFA", new {FAAFNo = Model.FAAFNo}, new { target = "_blank", @class="btn btn-default",@role="button" })*@
+                         <button title="Print Item" id="print-item-return" onclick="window.open('@Url.Action("PrintFAAF_Return", new { FAAFNo = Model.FAAFNo })')" type="button" class="btn btn-default">
+                            <i class="glyphicon glyphicon-print"></i>
+                        </button>
+                                                <button id="remove-item2" class="def btn btn-danger toolbtn" disabled title="Delete">
+                            <i class="glyphicon glyphicon-trash"></i>
+                        </button>
+                        @if (!User.IsInRole("Warehouse_Staff"))
+                        {
+                        <button id="post-item" class="def btn btn-warning toolbtn" disabled title="Post">
+                            <i class="glyphicon glyphicon-download-alt"></i>
+                        </button>
+                        }
+                    </div>
+                    <table id="table2" class="table table-bordered table-striped" style="clear: both"
+                        data-toggle="table"
+                        data-url="#"
+                        data-side-pagination="server"
+                        data-page-list="[5, 10, 20, 50, 100, 200]"
+                        data-toolbar="#toolbar2"
+                        data-height="auto"
+                        data-click-to-select="true"
+                        data-show-columns="true"
+                        data-show-toggle="true"
+                        data-pagination="true"
+                        data-id-field="id">
+                        <thead>
+                            <tr>
+                                <th data-field="state" data-checkbox="true" data-formatter="stateFormatter2"></th>
+                                <th data-field="FAARFNo" data-halign="center">FAARF No</th>
+                                <th data-field="FACardNo" data-halign="center">FA Card No</th>
+                                <th data-field="PropertyNo" data-halign="center">Property No</th>
+                                <th data-field="ItemCode" data-halign="center">Item Code</th>
+                                <th data-field="Description" data-halign="center">Description</th>
+                                <th data-field="ModelType" data-halign="center">Model Type</th>
+                                <th data-field="SerialNo" data-halign="center">Serial No</th>
+                                <th data-field="PO" data-halign="center">PO</th>
+                                <th data-field="Quantity" data-halign="center" class="text-right">Quantity</th>
+
+                                <th data-field="UoM" data-halign="center" class="text-right">U/M</th>
+                                <th data-field="UnitCost" data-halign="center" class="text-right" data-formatter="currencyFormatter">Unit Cost</th>
+                                <th data-field="DateReturned" data-halign="center" class="text-right" data-formatter="dateFormat">Date Returned</th>
+                                <th data-field="ToolStatus" data-halign="center" class="text-right">Tool Status</th>
+                                <th data-field="Recommendation" data-halign="center">Recommendation</th>
+                                <th data-field="Remarks" data-halign="center">Remarks</th>
+                                <th data-field="DocStatus" data-halign="center" data-visible="false">DocStatus</th>
+                                <th data-field="FindingsObservation" data-halign="center">Findings/Observation</th>
+                                <th data-field="AFFAIssueID" data-halign="center" data-visible="false">AFFAIssueID</th>
+                                
+                                
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+                <div class="panel-footer"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@*Cancel AC*@
+<div id="cancelModal" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title">Confirmation</h4>
+            </div>
+            <div class="modal-body">
+
+                <div class="alert alert-success" id="alertbox-cancel" style="display: none">
+                    <strong>Success!</strong> Transaction save.
+                </div>
+                <div class="alert alert-danger" id="alertbox-error-cancel" style="display: none">
+                    <strong>Failed!</strong> Oops! Something went wrong .
+                            <div id="statmessage-cancel"></div>
+                </div>
+
+                <p class="text-danger">
+                    <p id="message-cancel" class="text-default"></p>
+                    <h16 class="text-warning">Note: This cannot be reverted</h16>
+                </p>
+                @Html.Label("Reason")
+
+                @Html.TextArea("Remarks-Cancel", null, new { @class = "form-control", @required = "required", @minlength = "5" })
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" id="btnCancelProc">Proceed Cancel</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@*End Cancel AC*@
+
+<div>
+       @if (ViewBag.UserType==1)
+    {
+        @Html.ActionLink("Back to List", "Index_Warehouse")
+    }
+    else
+    {
+        @Html.ActionLink("Back to List", "Index")
+    }
+    <button title="Cancel Accountability Card" type="button" onclick="showCancelAC()" class="btn btn-default">
+        <i class="glyphicon glyphicon-ban-circle"></i>
+        </button>
+</div>
+
+
+<script src="~/Content/scripts/moment.js"></script>
+<script src="~/Content/scripts/bootstrap-datetimepicker.min.js"></script>
+
+
+<script>
+        $('#btnRelease').click(function () {
+       var retVal = confirm("Are you sure you want to set document to Release Status? This may affect other data.");
+            if( retVal == true ){
+                  $.ajax({
+                        url: "@Url.Action("SetToRelease")"
+                            , method: "POST"
+                            , dataType: 'json'
+                            , data: { id: @ViewBag.ID }
+                            , success: function (responsedata) {
+                                if (responsedata.status == "success") {
+                                    alert("Success!");
+                                    location.reload();
+                                } else {
+                                    alert("Fail!");
+                                }
+                            }
+                    });
+            }
+    });
+
+
+    function AllowNumberOnly(event) {
+        if ((event.which >= 48 && event.which <= 57) || (event.which >= 96 && event.which <= 105) || event.which == 8 || event.keyCode == 9 || event.keyCode == 110 || event.keyCode == 190) {
+        }
+        else event.preventDefault();
+    }
+    function dateFormat(value, row, index) {
+        return moment(value).format('MM/DD/YYYY');
+    }
+    function showCancelAC() {
+        if (vDocStatus == 1 || vDocStatus == 2 || vDocStatus == 3) {
+            $.notify("<Strong>Fail!</Strong> Cannot proceed,only open documents allowed for this transaction", { type: 'danger', placement: { align: 'center' } });
+            return false;
+        }
+
+        document.getElementById('message-cancel').innerHTML = "Do you want to cancel this accountability card permanently?"
+        $('#cancelModal').modal('show');
+    }
+    function setDecimal(input) {
+        num = isNaN(parseInt(input.value)) ? parseFloat(0).toFixed(2) : parseFloat(input.value).toFixed(2)
+        num = num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+        input.value = num;
+    }
+    function setToInt(input) {
+        num = isNaN(parseInt(input.value)) ? parseInt(0) : parseInt(input.value)
+        input.value = num;
+    }
+    function currencyFormatter(value) {
+        value = value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+        //return '<i class="glyphicon glyphicon-star"></i> ' + value;
+        return value;
+    }
+
+    function stateFormatter(value, row, index) {
+        if (row.Status === "Transferred") {
+            return {
+                disabled: true
+            };
+        }
+        if (row.Quantity === row.qtyret) {
+            return {
+                disabled: true
+            };
+        }
+        if (row.Status === "Cancelled") {
+            return {
+                disabled: true
+            };
+        }
+        return value;
+    }
+    function stateFormatter2(value, row, index) {
+        if (row.DocStatus === 1) {
+            return {
+                disabled: true
+            };
+        }
+
+        return value;
+    }
+    function actionFormatter(cellvalue, options, rowObject) {
+        var b = '<button onclick="showReturns(' + options.id + ')" title="View Returns" type="button" class="btn btn-default" style=" margin-right: 5px; font-size: 12px; width: 130px"> View Returns </button>';
+        return b;
+    };
+
+    var selectedrow;
+    var method = "";
+    var ttype = "";
+    var strurl = "";
+    var dataText = "";
+    var dataVal = "";
+    var strurl_s = "";
+    var retInit = false;
+    var totalqty = 0;
+    $itemcat = $('#Category').val()
+    $table = $('#table');
+    $table2 = $('#table2');
+    $remove = $('#remove-item')
+    $remove2 = $('#remove-item2')
+    $edit = $('#edit-item')
+    $edit2 = $('#edit-item2')
+    $return = $('#return-item')
+    $transfer = $('#transfer-item')
+    $post = $('#post-item')
+    selections = [];
+
+    $table.on('check.bs.table uncheck.bs.table ' +
+    'check-all.bs.table uncheck-all.bs.table', function (e, row) {
+        $remove.prop('disabled', !$table.bootstrapTable('getSelections').length);
+        $edit.prop('disabled', !$table.bootstrapTable('getSelections').length);
+        $return.prop('disabled', !$table.bootstrapTable('getSelections').length);
+        $transfer.prop('disabled', !$table.bootstrapTable('getSelections').length);
+        selections = getIdSelections(); //to get data id
+    });
+    $table2.on('check.bs.table uncheck.bs.table ' +
+    'check-all.bs.table uncheck-all.bs.table', function (e, row) {
+        $remove2.prop('disabled', !$table2.bootstrapTable('getSelections').length);
+        $edit2.prop('disabled', !$table2.bootstrapTable('getSelections').length);
+        $post.prop('disabled', !$table2.bootstrapTable('getSelections').length);
+        selections = getIdSelections2(); //to get data id
+    });
+    function isTransferred() {
+        if ($('#Status').val() == "Transferred") {
+            $.notify("<strong>Info!</strong> Cannot proceed. Item is already transferred.", { type: 'info', placement: { align: 'center' } });
+            return 1;
+        } else { 0 }
+    }
+    function isReleasedOrClosed() {
+       
+        if (vDocStatus == 1) {
+            $.notify("<Strong>Fail!</Strong> Cannot proceed,document is on released status", { type: 'danger', placement: { align: 'center' } });
+            return 1;
+        }
+        if (vDocStatus == 2) {
+            $.notify("<Strong>Fail!</Strong> Cannot proceed,document is already closed", { type: 'danger', placement: { align: 'center' } });
+            return 2;
+        }
+        if (vDocStatus == 3) {
+            $.notify("<Strong>Fail!</Strong> Cannot proceed,document is already closed", { type: 'danger', placement: { align: 'center' } });
+            return 3;
+        }
+        else { 0 }
+    }
+    function isClosed() {
+        if (vDocStatus == 2) {
+            $.notify("<Strong>Fail!</Strong> Cannot proceed,document is already closed", { type: 'danger', placement: { align: 'center' } });
+            return 2;
+        }
+    }
+    function showReturns(id) {
+        $('#afissueid').val(id);
+        var strurl = "@Url.Action("GetAFFAReturn", "AFFA", new { transtype = "Credit" })" + "&afid=" + encodeURIComponent(id)
+        $('#table2').bootstrapTable('refresh', {
+            url: strurl.replace(/&amp;/g, '&')
+        });
+    }
+    function getIdSelections() {
+        return $.map($table.bootstrapTable('getSelections'), function (row) {
+            return row.id
+        });
+    }
+    function getIdSelections2() {
+        return $.map($table2.bootstrapTable('getSelections'), function (row) {
+            return row.id
+        });
+    }
+    function clearalerts() {
+        $("#alertbox-issue")[0].style.display = "none";
+        $("#alertbox-error-issue")[0].style.display = "none";
+        $("#alertbox")[0].style.display = "none";
+        $("#alertbox-error")[0].style.display = "none";
+    }
+    function cleartext() {
+        document.getElementById("frm").reset();
+        document.getElementById("frmRet").reset();
+
+
+        $("#ItemID").select2({
+            width: '100%',
+            theme: 'bootstrap',
+            ajax: {
+                url: "@Url.Action("SearchItem_Json", "Item")",
+                dataType: 'json',
+                delay: 300,
+                data: function (params) {
+                    return {
+                        q: params.term, // search term
+                        page: params.page
+                    };
+                },
+                processResults: function (data, page) {
+                    return {
+                        results: data.items
+                    };
+                },
+                cache: false
+            },
+            minimumInputLength: 1
+        }).empty();
+
+
+        $("#ItemID").val("").trigger('change');
+        $("#Remarks").val("");
+        $("#SerialNo").val("").trigger('change');
+        $("#PO").val("").trigger('change');
+    }
+    function generatefano() {
+        $.ajax({
+            url: "@Url.Action("GetNoSeries")"
+                , method: "GET"
+                , dataType: 'json'
+                , data: { strcode: "FAAF" }
+                , success: function (responsedata) {
+                    if (responsedata[0].status == "success") {
+                        var lastno = parseInt(responsedata[0].text)
+                        var str = "" + (parseInt(lastno) + 1)
+                        var pad = responsedata[0].text
+                        var ans = pad.substring(0, pad.length - str.length) + str
+                        $('#FAAFNo2').val(responsedata[0].code + '-' + ans);
+                    } else {
+                        alert("Fail!");
+                    }
+                }
+        });
+    }
+    function generatefaarfno() {
+        var id = @ViewBag.ID
+        
+
+        $.ajax({
+            url: "@Url.Action("GetNoSeriesFromAFFA")"
+                , method: "GET"
+                , dataType: 'json'
+                , data: { AFFAID: id }
+                , async: true
+                , success: function (responsedata1) {
+                    if (responsedata1.status == "success") {
+                        if (responsedata1.message == "-") {
+                            $.ajax({
+                                url: "@Url.Action("GetNoSeries")"
+                                , method: "GET"
+                                , dataType: 'json'
+                                , data: { strcode: "FAARF" }
+                                , success: function (responsedata) {
+                                    if (responsedata[0].status == "success") {
+                                        var lastno = parseInt(responsedata[0].text)
+                                        var str = "" + (parseInt(lastno) + 1)
+                                        var pad = responsedata[0].text
+                                        var ans = pad.substring(0, pad.length - str.length) + str
+                                        $('#FAARFNo').val(responsedata[0].code + '-' + ans);
+                                        $('#FAARFNo_ra').val(responsedata[0].code + '-' + ans);
+                                        $('#FAARFNo_ri').val(responsedata[0].code + '-' + ans);
+                                    } else {
+                                        alert("Fail!");
+                                    }
+                                }
+                            });
+                        } else {
+                            $('#FAARFNo').val(responsedata1.message);
+                            $('#FAARFNo_ra').val(responsedata1.message);
+                            $('#FAARFNo_ri').val(responsedata1.message);
+                        }
+                    } else {
+                        $.notify("<Strong>Oops!</Strong> Cannot generate FAARF No. Contact System Administrator.", { type: 'danger', placement: { align: 'center' } });
+                    }
+                }
+        });
+
+@*        $.ajax({
+            url: "@Url.Action("GetNoSeries")"
+                , method: "GET"
+                , dataType: 'json'
+                , data: { strcode: "FAARF" }
+                , success: function (responsedata) {
+                    if (responsedata[0].status == "success") {
+                        var lastno = parseInt(responsedata[0].text)
+                        var str = "" + (parseInt(lastno) + 1)
+                        var pad = responsedata[0].text
+                        var ans = pad.substring(0, pad.length - str.length) + str
+                        $('#FAARFNo').val(responsedata[0].code + '-' + ans);
+                        $('#FAARFNo_ra').val(responsedata[0].code + '-' + ans);
+                        $('#FAARFNo_ri').val(responsedata[0].code + '-' + ans);
+                    } else {
+                        alert("Fail!");
+                    }
+                }
+        });*@
+
+
+    }
+    function toggleOn() {
+        $('#toggleStatus').bootstrapToggle('on')
+    }
+    function toggleOff() {
+        $('#toggleStatus').bootstrapToggle('off')
+    }
+
+    function toggleClosed() {
+        $('#toggleStatus').bootstrapToggle('destroy')
+        $('#toggleStatus').bootstrapToggle({
+            on: 'Open',
+            off: 'Closed',
+            offstyle: 'danger'
+        });
+        $('#toggleStatus').prop('disabled', true).change()
+    }
+    function GetFormattedDate() {
+        var currentDt = new Date();
+        var mm = currentDt.getMonth() + 1;
+        mm = (mm < 10) ? '0' + mm : mm
+        var dd = currentDt.getDate();
+        dd = (dd < 10) ? '0' + dd : dd
+        var yyyy = currentDt.getFullYear();
+        var date = mm + '/' + dd + '/' + yyyy;
+        return date;
+    }
+
+    //function isSelectedAll() {
+    //    var x;
+    //    var rowcount;
+
+    //    rowcount = $('#table').bootstrapTable('getSelections').length;
+    //    if (rowcount == 1) {
+    //        x = "false"
+    //    } else {
+    //        $('[name="btSelectAll"]').each(function () {
+    //            x = $(this).prop('checked') == true ? "true" : "false";
+    //            return false;
+    //        });
+    //    };
+
+    //    //var x;
+    //    //$('[name="btSelectAll"]').each(function () {
+    //    //    x = $(this).prop('checked') == true ? "true" : "false";
+    //    //    return false;
+    //    //});
+    //    return x
+    //}
+    function isAllHasReturned() {
+
+        var cnt = true;
+        $('#table [name="btSelectItem"]').each(function () {
+
+            var x = $(this).prop('disabled');
+
+            if (!x) {
+
+                cnt = false;
+            }
+        });
+        return cnt;
+    }
+    function isSelectedAll() {
+        var x;
+        var rowcount;
+        rowcount = $('#table').bootstrapTable('getSelections').length;
+        if (rowcount == 1) {
+            $('[name="btSelectAll"]').each(function () {
+                x = $(this).prop('checked') == true ? "true" : "false";
+                return false;
+            });
+            if (x == "true") {
+                x = "all"
+            } else {
+                x = "false"
+            }
+
+        } else {
+            $('[name="btSelectAll"]').each(function () {
+                x = $(this).prop('checked') == true ? "true" : "false";
+                return false;
+            });
+        };
+
+        return x
+    }
+    function isSelectedAll2() {
+        var x;
+        var rowcount;
+        rowcount = $('#table2').bootstrapTable('getSelections').length;
+        if (rowcount == 1) {
+            $('#table2 [name="btSelectAll"]').each(function () {
+                x = $(this).prop('checked') == true ? "true" : "false";
+                return false;
+            });
+            if (x == "true") {
+                x = "all"
+            } else {
+                x = "false"
+            }
+
+        } else {
+            $('#table2 [name="btSelectAll"]').each(function () {
+                x = $(this).prop('checked') == true ? "true" : "false";
+                return false;
+            });
+        };
+
+
+        return x
+    }
+    $(function () {
+        vDocStatus = @ViewBag.DocStatus
+        r_id = @ViewBag.ID
+
+        $('#toggleStatus').bootstrapToggle({
+            on: 'Open',
+            off: 'Released'
+        });
+        if (vDocStatus == 0) {
+            toggleOn();
+        } else if (vDocStatus == 1) {
+            toggleOff();
+        } else {
+            toggleClosed();
+        }
+        $('#btnGroup').click(function () {
+            var empid = $("#EmployeeID").val();
+
+
+            if (!$.fn.dataTable.isDataTable('#tblGroupMembers')) {
+                var table = $('#tblGroupMembers').DataTable({
+                    "processing": true,
+                    "serverSide": true,
+                    "info": true,
+                    "lengthMenu": [[10, 20, 50, -1], [10, 20, 50, "All"]],
+                    "ajax": {
+                        "url": "@Url.Action("getGroupMembers", "AFBorrower", new { trans = "Group" })" + "&strcode=" + encodeURIComponent(empid),
+                        "type": "GET"
+                    },
+                    "columns": [
+                        { "data": "EmpID", "orderable": true },
+                        { "data": "EmployeeName", "orderable": true },
+                    ],
+                    "order": [[0, "asc"]]
+                });
+            }
+
+
+
+
+            $('#membersModal').modal('show');
+        });
+        $('#btnCancelProc').click(function () {
+
+            
+
+
+            var id = @ViewBag.ID
+
+            $("#alertbox-cancel")[0].style.display = "none";
+            $("#alertbox-error-cancel")[0].style.display = "none";
+
+
+            if ($("#Remarks-Cancel").val() == "") {
+                $("#alertbox-error-cancel")[0].style.display = "block";
+                document.getElementById("statmessage-cancel").innerHTML = "Reason cannot be blank.";
+                return false;
+            }
+
+            $.ajax({
+                url: "@Url.Action("CancelAC", "AFFA")"
+                , method: "post"
+                , dataType: "json"
+                , data: { itemid: id, remarks: $("#Remarks-Cancel").val() }
+                , success: function (responseData) {
+                    if (responseData.status == "success") {
+                        $("#alertbox-cancel")[0].style.display = "block";
+                        window.open('@Url.Action("Index", "AFFA")', '_self')
+
+                    } else {
+                        $("#alertbox-error-cancel")[0].style.display = "block";
+                    }
+                }
+             });
+        });
+        $('#toggleStatus').change(function () {
+            var stat = $(this).prop('checked');
+            if (stat == true) {
+                vDocStatus = 0;
+            } else {
+                vDocStatus = 1
+            };
+            $.ajax({
+                url: "@Url.Action("ChangeDocumentStatus")"
+            , method: "POST"
+            , dataType: 'json'
+            , data: { id: r_id, status: vDocStatus }
+            , success: function (responsedate) {
+                if (responsedate.status == "success") {
+                    $.notify("<Strong>Status!</Strong> Status change.", { type: 'success', placement: { align: 'center' } });
+                } else {
+                    $.notify("<Strong>Oops!</Strong> Something went wrong.", { type: 'danger', placement: { align: 'center' } });
+                }
+            }
+                , error: function () {
+                    $.notify("<Strong>Oops!</Strong> Something went wrong.", { type: 'danger', placement: { align: 'center' } });
+                }
+            });
+        })
+
+        $('#EmployeeID').prop('disabled', true);
+        $('#UoM').empty()
+        $table.bootstrapTable('hideColumn', 'ItemID');
+        $('.def').prop('disabled', true);
+
+        $('#DateIssue').datetimepicker({
+            defaultDate: new Date(),
+            format: 'MM/DD/YYYY'
+        });
+        $('#DateReturn_A').datetimepicker({
+            defaultDate: new Date(),
+            format: 'MM/DD/YYYY'
+        });
+        $('#DateReturned').datetimepicker({
+            defaultDate: new Date(),
+            format: 'MM/DD/YYYY'
+        });
+        $('#add-item').click(function () {
+            var y = isReleasedOrClosed();
+            if (y == 1 || y == 2 || y == 3) {
+                return false;
+            }
+
+            //var x = isTransferred();
+            //if (x == 1) {
+            //    return false;
+            //}
+            method = "store"
+            clearalerts();
+            cleartext();
+            $('#DateIssued').val(GetFormattedDate());
+            $('#IssuanceModal').modal('show');
+        });
+        $('#return-item').click(function () {
+            retInit = false;
+
+            var userType1 = "@User.IsInRole("User")".toLowerCase();
+            var userType2 = "@User.IsInRole("Warehouse_Staff")".toLowerCase();
+            if ((userType1 == 'true' || userType2 == 'true')) {
+                $.notify("<Strong>Fail!</Strong> Cannot proceed,you are not authorized to access this function", { type: 'danger', placement: { align: 'center' } });
+                return false;
+            }
+
+            $('#DateReturn').val(GetFormattedDate());
+            if (vDocStatus == 0) {
+                $.notify("<Strong>Fail!</Strong> Cannot proceed,document is open", { type: 'danger', placement: { align: 'center' } });
+                return false;
+            }
+            if (vDocStatus == 2) {
+                $.notify("<Strong>Fail!</Strong> Cannot proceed,document is CLOSED", { type: 'danger', placement: { align: 'center' } });
+                return false;
+            }
+
+            var x = isTransferred();
+            if (x == 1) {
+                return false;
+            }
+
+
+            var x = isSelectedAll();
+
+            method = "store"
+            clearalerts();
+
+
+            //cleartext();
+            generatefaarfno();
+            //identify if all or individual return
+            if (x == "true") {
+                $('#DateReturn_A').val(GetFormattedDate());
+                $('#ReturnAllModal').modal('show');
+
+            } else {
+                var rowCount = $('#table').bootstrapTable('getSelections').length;
+                if (rowCount == 1) {
+                    selectedrow = $table.bootstrapTable('getSelections');
+                    if (selectedrow[0].Status == "Transferred") {
+                        $.notify("Cannot proceed. Item is already transferred.", { type: 'info', placement: { align: 'center' } });
+                        return false;
+                    }
+                    if (selectedrow[0].Quantity == selectedrow[0].qtyret) {
+                        $.notify("Cannot proceed. Item is already balance.", { type: 'info', placement: { align: 'center' } });
+                        return false;
+                    }
+                    $('#afissueid').val(selectedrow[0].id)
+                    $('#ItemDescription_R').val(selectedrow[0].Description)
+                    $('#SerialNo_R').val(selectedrow[0].SerialNo)
+                    $('#PO_R').val(selectedrow[0].PO)
+                    $('#Quantity_R').val(selectedrow[0].Quantity - selectedrow[0].qtyret)
+                    $('#UoM_R').val(selectedrow[0].UoM)
+                    $('#DateIssued_R').empty()
+                    $('#ReturnModal').modal('show');
+                } else {
+                    var selected = $('#table').bootstrapTable('getSelections');
+                    console.log(selected);
+                    $("#tblReturn tbody").empty();
+                    for (var i = 0; i < rowCount; i++) {
+                        var rowid = selected[i]['id'];
+                        var itemcode = selected[i]['ItemCode'];
+                        var desc = selected[i]['Description'];
+                        var qty = selected[i]['Quantity'];
+                        var refno = selected[i]['AFFAID'];
+
+                        var markup = "<tr><td style='display:none'>" + rowid + "</td><td style='display:none'>" + refno + "</td><td>" + itemcode + "</td><td>" + desc + "</td><td>" + qty + "</td><td contenteditable=true onkeydown=AllowNumberOnly(event) onkeyup=''>" + 1 +
+                            "</td><td><input class='datepicker_ret' type='text' style='border:none;text-align:center'></td><td>"
+                            +
+                            "<select id=sel" + i + ">" +
+                               "<option value=\"Serviceable\">Serviceable<\/option>" +
+                               "<option value=\"Un_Serviceable\">Un_Serviceable<\/option>" +
+                               "<option value=\"Lost_Unreturned\">Lost_Unreturned<\/option>" +
+                           "<\/select></td><td>"
+                            +
+                            "<select id=selRec" + i + ">" +
+                               "<option value=\"For Deduction\">For Deduction<\/option>" +
+                               "<option value=\"For Repair\">For Repair<\/option>" +
+                               "<option value=\"For Disposal\">For Disposal<\/option>" +
+                           "<\/select></td><td>"
+                           +
+                            "<select id=selFin" + i + ">" +
+                               "<option value=\"Operational\">Operational<\/option>" +
+                               "<option value=\"NonOperational\">Non-Operational<\/option>" +
+                               "<option value=\"Obsolete\">Obsolete<\/option>" +
+                               "<option value=\"BeyondEconomicRepair\">Beyond Economic Repair<\/option>" +
+                           "<\/select></td>"
+                            + "<td contenteditable='true'>" + "" + "</td></tr>";
+                        $("#tblReturn tbody").append(markup);
+                        $(".datepicker_ret").datepicker();
+                        $(".datepicker_ret").datepicker('setDate', new Date());
+
+                    }
+                    $('#multipleReturnModal').modal('show');
+                }
+            }
+        });
+        $('#transfer-item').click(function () {
+
+            var userType1 = "@User.IsInRole("User")".toLowerCase();
+            var userType2 = "@User.IsInRole("Warehouse_Staff")".toLowerCase();
+            if ((userType1 == 'true' || userType2 == 'true')) {
+                $.notify("<Strong>Fail!</Strong> Cannot proceed,you are not authorized to access this function", { type: 'danger', placement: { align: 'center' } });
+                return false;
+            }
+
+            if (vDocStatus == 0) {
+                $.notify("<Strong>Fail!</Strong> Cannot proceed,document is open", { type: 'danger', placement: { align: 'center' } });
+                return false;
+            }
+            if (vDocStatus == 2) {
+                $.notify("<Strong>Fail!</Strong> Cannot proceed,document is already closed", { type: 'danger', placement: { align: 'center' } });
+                return false;
+            }
+            selectedrow = $table.bootstrapTable('getSelections');
+            var x = isTransferred();
+            if (x == 1) {
+                return false;
+            }
+
+            clearalerts();
+            cleartext();
+            generatefano();
+            selectedrow = $table.bootstrapTable('getSelections');
+            if (selectedrow[0].Status == "Transferred") {
+                //$.notify("Cannot proceed. Item is already transferred.", { type: 'info', placement: { align: 'center' } });
+                $.notify("<Strong>Fail!</Strong> Cannot proceed,document is closed", { type: 'danger', placement: { align: 'center' } });
+                return false;
+            }
+
+            $('#TransferModal').modal('show');
+        });
+        $('#edit-item').click(function () {
+            var y = isReleasedOrClosed();
+            if (y == 1 || y == 2) {
+                return false;
+            }
+            selectedrow = $table.bootstrapTable('getSelections');
+            var x = isTransferred();
+            if (x == 1) {
+                return false;
+            }
+
+            method = "edit"
+            clearalerts();
+            cleartext();
+            $("#frm").append("<input id='funcEdit' type='hidden' name='_method' value='PUT'>");
+            selectedrow = $table.bootstrapTable('getSelections');
+
+
+            if (selectedrow[0].Status == "Transferred") {
+                $.notify("Cannot proceed. Item is already transferred.", { type: 'info', placement: { align: 'center' } });
+                return false;
+            }
+
+            $('#ItemID').empty();
+            $('#ItemID').select2({
+                width: '100%',
+                theme: 'bootstrap',
+                ajax: {
+                    url: "@Url.Action("SearchItem_Json", "Item")",
+                    dataType: 'json',
+                    delay: 300,
+                    data: function (params) {
+                        return {
+                            q: params.term, // search term
+                            page: params.page
+                        };
+                    },
+                    processResults: function (data, page) {
+                        return {
+                            results: data.items
+                        };
+                    },
+                    cache: false
+                },
+                minimumInputLength: 1,
+                data: [{ id: selectedrow[0].ItemID, text: selectedrow[0].Description }]
+            });
+
+            itemidchange(); //reload
+
+            dataVal = $("#ItemID option:selected").val();
+            strurl_s = "@Url.Action("SearchItemSerial_Json", "ItemDetail", new { transtype = "Credit" })" + "&id=" + encodeURIComponent(dataVal)
+
+            $.ajax({
+                url: "@Url.Action("GetItemDetails", "AFEmployee")"
+                , method: "GET"
+                , dataType: 'json'
+                , data: { id: dataVal }
+                , success: function (responsedate) {
+                    $('#Category').val(responsedate.Category);
+                }
+            });
+
+            $('#SerialNo').empty();
+            $("#SerialNo").append(new Option("", ""));
+            $("#SerialNo").append(new Option(selectedrow[0].SerialNo, selectedrow[0].SerialNo));
+            $('#SerialNo').select2({
+                theme: "bootstrap",
+                width: '100%',
+                minimumInputLength: 1,
+                placeholder: '',
+                allowClear: true,
+                ajax: {
+                    url: strurl_s.replace(/&amp;/g, '&'),
+                    dataType: 'json',
+                    delay: 300,
+                    data: function (params) {
+                        return {
+                            q: params.term, // search term
+                            page: params.page
+                        };
+                    },
+                    processResults: function (data, page) {
+                        return {
+                            results: data.items
+                        };
+                    },
+                    cache: false
+                },
+            }).val(selectedrow[0].SerialNo).trigger('change');
+
+            $('#id').val(selectedrow[0].id)
+            //$('#SerialNo').val(selectedrow[0].SerialNo)
+            $('#PO').val(selectedrow[0].PO)
+            $('#Quantity').val(selectedrow[0].Quantity)
+            $('#UoM').val(selectedrow[0].UoM)
+            $('#UnitCost').val(selectedrow[0].UnitCost)
+
+            $('#FACardNo').val(selectedrow[0].FACardNo)
+            $('#PropertyNo').val(selectedrow[0].PropertyNo)
+            $('#Remarks').val(selectedrow[0].Remarks)
+
+
+            $('#DateIssued').val(moment(selectedrow[0].DateIssued).format('MM/DD/YYYY'))
+            $('#Amount').val(selectedrow[0].Quantity * selectedrow[0].UnitCost)
+            $('#AccountCode').val(selectedrow[0].AccountCode)
+            $('#IssuanceModal').modal('show');
+            
+
+        });
+
+        $('#edit-item2').click(function () {
+            //var y = isReleasedOrClosed();
+            //if (y == 1 || y == 2) {
+            //    return false;
+            //}
+
+
+            var y = isClosed();
+
+            if (y == 2) {
+                return false;
+            }
+
+            method = "edit"
+            clearalerts();
+
+            selectedrow = $table2.bootstrapTable('getSelections');
+            $('#afretid').val(selectedrow[0].id);
+
+            $('#FAARFNo').val(selectedrow[0].FAARFNo)
+
+
+            $('#ItemDescription_R').val(selectedrow[0].Description)
+            $('#SerialNo_R').val(selectedrow[0].SerialNo)
+            $('#PO_R').val(selectedrow[0].PO)
+            $('#Quantity_R').val(selectedrow[0].Quantity)
+            $('#UoM_R').val(selectedrow[0].UoM)
+            $('#DateReturn').val(moment(selectedrow[0].DateReturned).format('MM/DD/YYYY'))
+            $('#Recommendation').val(selectedrow[0].Recommendation)
+            $('#Remarks_R').val(selectedrow[0].Remarks)
+            $('#ToolStatus').val(selectedrow[0].ToolStatus).trigger('change')
+            $('#FindingsObservation').val(selectedrow[0].FindingsObservation).trigger('change')
+            $('#ReturnModal').modal('show');
+            $('#afissueid').val(selectedrow[0].AFFAIssueID);
+
+        });
+
+        $('#remove-item').click(function () {
+            var y = isReleasedOrClosed();
+            if (y == 1 || y == 2) {
+                return false;
+            }
+            if (vDocStatus == 2) {
+                $.notify("<Strong>Fail!</Strong> Cannot proceed,document is already closed", { type: 'danger', placement: { align: 'center' } });
+                return false;
+            }
+            selectedrow = $table.bootstrapTable('getSelections');
+            var x = isTransferred();
+            if (x == 1) {
+                return false;
+            }
+
+            selectedrow = $table.bootstrapTable('getSelections');
+            if (selectedrow[0].Status == "Transferred") {
+                $.notify("Cannot proceed. Item is already transferred.", { type: 'info', placement: { align: 'center' } });
+                return false;
+            }
+
+            ttype = "Credit";
+            document.getElementById('message').innerHTML = "Do you want to delete all selected values?"
+            $('#confirmModal').modal('show');
+        });
+        $('#remove-item2').click(function () {
+            //var y = isReleasedOrClosed();
+            //if (y == 1 || y == 2) {
+            //    return false;
+            //}
+
+            var x = isTransferred();
+            if (x == 1) {
+                return false;
+            }
+
+            ttype = "Debit";
+            document.getElementById('message').innerHTML = "Do you want to delete all selected values?"
+            $('#confirmModal').modal('show');
+        });
+        $('#post-item').click(function () {
+
+            ttype = "Post";
+            document.getElementById('message').innerHTML = "Do you want to post all selected values?"
+            $('#confirmModal').modal('show');
+        })
+        $('#print-item').click(function () {
+
+            //$('#toggleStatus').bootstrapToggle('off');
+
+        });
+        $('#view-all-return').click(function () {
+            var allid = @ViewBag.ID
+            strurl = "@Url.Action("GetAllAFFAReturn", "AFFA", new { transtype = "Credit" })" + "&afid=" + encodeURIComponent(allid)
+            $('#table2').bootstrapTable('refresh', {
+                url: strurl.replace(/&amp;/g, '&')
+            });
+
+        });
+        $('#btnCloseDocument').click(function () {
+            if (vDocStatus == 0) {
+                $.notify("<Strong>Fail!</Strong> Cannot proceed,document is open", { type: 'danger', placement: { align: 'center' } });
+                return false;
+            }
+            if (vDocStatus == 2) {
+                $.notify("<Strong>Fail!</Strong> Cannot proceed,document is already closed", { type: 'danger', placement: { align: 'center' } });
+                return false;
+            }
+            ttype = "closeDoc";
+            document.getElementById('message').innerHTML = "Do you want to permanently close the document?"
+            $('#confirmModal').modal('show');
+
+        });
+
+        $('#btnRefresh').click(function () {
+            @*            var strurl = "@Url.Action("GetAFEmpDetails", "AFFA", new { afid = @ViewBag.ID, transtype = "Credit" })"
+            $('#table').bootstrapTable('refresh', {
+                url: strurl.replace(/&amp;/g, '&')
+            });*@
+            $('#table').bootstrapTable('refresh', {});
+        });
+
+        @*        $('#btnRefresh2').click(function () {
+            var strurl = "@Url.Action("GetAFEmpDetails", "AFFA", new { afid = @ViewBag.ID, transtype = "Debit" })"
+            $('#table2').bootstrapTable('refresh', {
+                url: strurl.replace(/&amp;/g, '&')
+            });
+        });*@
+
+        $("#ItemID").select2({
+            theme: "bootstrap",
+            width: "100%",
+            ajax: {
+                url: "@Url.Action("SearchItem_Json", "Item")",
+                dataType: 'json',
+                delay: 300,
+                data: function (params) {
+                    return {
+                        q: params.term, // search term
+                        page: params.page
+                    };
+                },
+                processResults: function (data, page) {
+                    return {
+                        results: data.items
+                    };
+                },
+                cache: false
+            },
+            minimumInputLength: 1
+        });
+
+        @* var strurl = "@Url.Action("SearchItem_Json_Return", "AFEmployeeDetail", new { afid = @ViewBag.ID, transtype = "Credit" })"
+        $("#ItemID_R").select2({
+            theme: "bootstrap",
+            width: "100%",
+            ajax: {
+                url: strurl.replace(/&amp;/g, '&'),
+                dataType: 'json',
+                delay: 300,
+                data: function (params) {
+                    return {
+                        q: params.term, // search term
+                        page: params.page
+                    };
+                },
+                processResults: function (data, page) {
+                    return {
+                        results: data.items
+                    };
+                },
+                cache: false
+            },
+            minimumInputLength: 1
+        });*@
+
+
+
+
+
+        @* $('#ItemID_R').on('change', function () {
+            dataText = $("#ItemID_R option:selected").text();
+            dataVal = $("#ItemID_R option:selected").val();
+            strurl_s = "@Url.Action("SearchItemSerial_Json_Return", "AFEmployeeDetail", new { afid = @ViewBag.ID, transtype = "Credit" })" + "&itemid=" + encodeURIComponent(dataVal)
+            $('#SerialNo_R').select2({
+                theme: "bootstrap",
+                width: '100%',
+                ajax: {
+                    url: strurl_s.replace(/&amp;/g, '&'),
+                    dataType: 'json',
+                    delay: 300,
+                    data: function (params) {
+                        return {
+                            q: params.term, // search term
+                            page: params.page
+                        };
+                    },
+                    processResults: function (data, page) {
+                        return {
+                            results: data.items
+                        };
+                    },
+                    cache: false
+                },
+            });
+        })*@
+
+
+
+
+        //dataVal = $("#ItemID_R option:selected").val();
+        //strurl_s = "@Url.Action("SearchItemSerial_Json_Return", "AFEmployeeDetail", new { afid = @ViewBag.ID, transtype = "Credit" })" + "&itemid=" + encodeURIComponent(dataVal)
+
+        $("#SerialNo").select2({
+            theme: "bootstrap",
+            width: "100%",
+            //minimumInputLength: 1,
+            placeholder: '',
+            allowClear: true
+        });
+        $("#PO").select2({
+            theme: "bootstrap",
+            width: "100%",
+            //minimumInputLength: 1,
+            placeholder: '',
+            allowClear: true
+        });
+        $("#EmployeeID").select2({
+            theme: "bootstrap",
+            ajax: {
+                url: "@Url.Action("SearchEmployee_Json", "Employee")",
+                dataType: 'json',
+                delay: 300,
+                data: function (params) {
+                    return {
+                        q: params.term, // search term
+                        page: params.page
+                    };
+                },
+                processResults: function (data, page) {
+                    return {
+                        results: data.items
+                    };
+                },
+                cache: false
+            },
+            minimumInputLength: 1
+        });
+
+        $("#EmployeeID").on('change', function () {
+            $.ajax({
+                url: "@Url.Action("GetEmpDetails")"
+            , method: "GET"
+            , dataType: 'json'
+            , data: { id: $(this).val() }
+            , success: function (responsedate) {
+                if (responsedate.status == "success") {
+                    $('#Employees_EmpId').val(responsedate.EmployeeNo);
+                    $('#Employees_Designations_Name').val(responsedate.Designations);
+                    $('#Employees_Departments_Name').val(responsedate.Departments);
+                } else {
+                    alert("Fail!");
+                }
+            }
+            });
+        })
+        $("#EmployeeID2").select2({
+            theme: "bootstrap",
+            width: "100%",
+            ajax: {
+                url: "@Url.Action("SearchEmployee_Json", "Employee")",
+                dataType: 'json',
+                delay: 300,
+                data: function (params) {
+                    return {
+                        q: params.term, // search term
+                        page: params.page
+                    };
+                },
+                processResults: function (data, page) {
+                    return {
+                        results: data.items
+                    };
+                },
+                cache: false
+            },
+            minimumInputLength: 1
+        });
+
+        $("#EmployeeID2").on('change', function () {
+            $.ajax({
+                url: "@Url.Action("GetEmpDetails")"
+            , method: "GET"
+            , dataType: 'json'
+            , data: { id: $(this).val() }
+            , success: function (responsedate) {
+                if (responsedate.status == "success") {
+                    $('#EmployeeNo2').val(responsedate.EmployeeNo);
+                    $('#DesignationName2').val(responsedate.Designations);
+                    $('#DepartmentName2').val(responsedate.Departments);
+                } else {
+                    alert("Fail!");
+                }
+            }
+            });
+        })
+        function itemidchange() {
+            $("#UoM").val("");
+            $("#PO").val("");
+            $("#UnitCost").val("0.00");
+            $("#Amount").val("0.00");
+            $("#Quantity").val("1");
+            $('#SerialNo').val("").trigger('change');
+            $('#PO').val("").trigger('change');
+            var itemval = $("#ItemID").val();
+
+            $.ajax({
+                url: "@Url.Action("TotalInv", "Item")"
+            , method: "GET"
+            , dataType: 'json'
+            , data: { id: itemval }
+            , success: function (responsedata) {
+                $("#Inventory").val((responsedata));
+            }
+            })
+
+
+            $.ajax({
+                url: "@Url.Action("GetItemDetails")"
+                , method: "GET"
+                , dataType: 'json'
+                , data: { id: itemval }
+                , success: function (responsedate) {
+                    if (responsedate.status == "success") {
+                        dataVal = $("#ItemID option:selected").val();
+                        strurl_s = "@Url.Action("SearchItemSerial_Json", "ItemDetail", new { transtype = "Credit" })" + "&id=" + encodeURIComponent(dataVal)
+                        $('#SerialNo').select2({
+                            theme: "bootstrap",
+                            width: '100%',
+                            tags: true,
+                            //minimumInputLength: 1,
+                            placeholder: '',
+                            allowClear: true,
+
+                            ajax: {
+                                url: strurl_s.replace(/&amp;/g, '&'),
+                                dataType: 'json',
+                                delay: 300,
+                                data: function (params) {
+                                    return {
+                                        q: params.term, // search term
+                                        page: params.page
+                                    };
+                                },
+                                processResults: function (data, page) {
+                                    return {
+                                        results: data.items
+                                    };
+                                },
+                                cache: false
+                            },
+                        });
+                        //.val(responsedate[0].PO).trigger('change');
+
+                        dataVal = $("#ItemID option:selected").val();
+                        strurl_p = "@Url.Action("SearchItemPO_Json", "ItemDetail", new { transtype = "Credit" })" + "&id=" + encodeURIComponent(dataVal)
+                        $('#PO').select2({
+                            theme: "bootstrap",
+                            width: '100%',
+                            //minimumInputLength: 1,
+                            placeholder: '',
+                            allowClear: true,
+                            ajax: {
+                                url: strurl_p.replace(/&amp;/g, '&'),
+                                dataType: 'json',
+                                delay: 300,
+                                data: function (params) {
+                                    return {
+                                        q: params.term, // search term
+                                        page: params.page
+                                    };
+                                },
+                                processResults: function (data, page) {
+                                    return {
+                                        results: data.items
+                                    };
+                                },
+                                cache: false
+                            },
+
+                        });
+                        //.val(responsedate[0].PO).trigger('change');
+
+                        $('#UoM').val(responsedate.UoM);
+                        $('#Category').val(responsedate.Category);
+                    } else {
+                        alert("Fail!");
+                    }
+                }
+            });
+        }
+        $("#ItemID").on('change', function () {
+            $("#UoM").val("");
+            $("#PropertyNo").val("");
+            $("#UnitCost").val("0.00");
+            $("#Amount").val("0.00");
+            $("#Quantity").val("1");
+            $('#SerialNo').val("").trigger('change');
+            $('#PO').val("").trigger('change');
+            $('#FACardNo').val("").trigger('change');
+
+            $.ajax({
+             url: "@Url.Action("TotalInv", "Item")"
+            , method: "GET"
+            , dataType: 'json'
+                , async: false
+            , data: { id: $(this).val() }
+            , success: function (responsedata) {
+                $("#Inventory").val((responsedata));
+            }
+            })
+
+
+            $.ajax({
+                url: "@Url.Action("GetItemDetails")"
+            , method: "GET"
+            , dataType: 'json'
+            , data: { id: $(this).val() }
+            , success: function (responsedate) {
+                if (responsedate.status == "success") {
+                    dataVal = $("#ItemID option:selected").val();
+                    strurl_s = "@Url.Action("SearchItemSerial_Json", "ItemDetail", new { transtype = "Credit" })" + "&id=" + encodeURIComponent(dataVal)
+                    $('#SerialNo').select2({
+                        theme: "bootstrap",
+                        width: '100%',
+                        //minimumInputLength: 1,
+                        placeholder: '',
+                        allowClear: true,
+
+                        ajax: {
+                            url: strurl_s.replace(/&amp;/g, '&'),
+                            dataType: 'json',
+                            delay: 300,
+                            data: function (params) {
+                                return {
+                                    q: params.term, // search term
+                                    page: params.page
+                                };
+                            },
+                            processResults: function (data, page) {
+                                return {
+                                    results: data.items
+                                };
+                            },
+                            cache: false
+                        },
+                    });
+                    dataVal = $("#ItemID option:selected").val();
+                    strurl_p = "@Url.Action("SearchItemPO_Json", "ItemDetail", new { transtype = "Credit" })" + "&id=" + encodeURIComponent(dataVal)
+                    $('#PO').select2({
+                        theme: "bootstrap",
+                        width: '100%',
+                        //minimumInputLength: 1,
+                        placeholder: '',
+                        allowClear: true,
+                        ajax: {
+                            url: strurl_p.replace(/&amp;/g, '&'),
+                            dataType: 'json',
+                            delay: 300,
+                            data: function (params) {
+                                return {
+                                    q: params.term, // search term
+                                    page: params.page
+                                };
+                            },
+                            processResults: function (data, page) {
+                                return {
+                                    results: data.items
+                                };
+                            },
+                            cache: false
+                        },
+                    });
+
+                    $('#UoM').val(responsedate.UoM);
+                    $('#Category').val(responsedate.Category);
+                } else {
+                    alert("Fail!");
+                }
+            }
+            });
+            $('#PO').val("").trigger('change');
+        });
+
+        //dataVal = $("#ItemID option:selected").val();
+        var ajaxInProgress = false;
+
+        $("#SerialNo").on('change', function () {
+           
+            if (ajaxInProgress) {
+                ajaxInProgress = false;
+                return;
+            }
+
+          
+            $.ajax({
+                url: "@Url.Action("GetSerialDetails", "ItemDetail")"
+            , method: "GET"
+            , dataType: 'json'
+            , data: { afid: $("#ItemID option:selected").val(), sn: $("#SerialNo option:selected").text() }
+            , success: function (responsedate) {
+                ajaxInProgress = true;
+
+                if (!$.trim(responsedate)) {
+                    $('#PO').val("").trigger('change');
+                    $('#UoM').val("");
+                    $('#PropertyNo').val("");
+                    $('#FACardNo').val("").trigger('change');
+                    i = parseFloat(0).toFixed(2)
+                    $('#UnitCost').val(i);
+                    s = $("#UnitCost").val() * $("#Quantity").val();
+                    num = isNaN(parseInt(s)) ? parseFloat(0).toFixed(2) : parseFloat(s).toFixed(2)
+                    $('#Amount').val(num);
+                }
+                else {
+
+
+                    dataVal = $("#ItemID option:selected").val();
+                    strurl_p = "@Url.Action("SearchItemPO_Json", "ItemDetail", new { transtype = "Credit" })" + "&id=" + encodeURIComponent(dataVal)
+
+                    $('#PO').empty();
+                    $("#PO").append(new Option("", ""));
+                    $("#PO").append(new Option(responsedate[0].PO, responsedate[0].PO));
+                    $('#PO').select2({
+                        theme: "bootstrap",
+                        width: '100%',
+                        //minimumInputLength: 1,
+                        placeholder: '',
+                        allowClear: true,
+                        ajax: {
+                            url: strurl_p.replace(/&amp;/g, '&'),
+                            dataType: 'json',
+                            delay: 300,
+                            data: function (params) {
+                                return {
+                                    q: params.term, // search term
+                                    page: params.page
+                                };
+                            },
+                            processResults: function (data, page) {
+                                return {
+                                    results: data.items
+                                };
+                            },
+                            cache: false
+                        },
+                    //}).val();
+                    }).val(responsedate[0].PO).trigger('change'); // 09112017 - kcm
+
+                    $('#UoM').val(responsedate[0].UOM);
+                    $('#PropertyNo').val(responsedate[0].PropertyNo);
+                    $('#FACardNo').val(responsedate[0].FACardNo);
+               
+                    //i = parseFloat(responsedate[0].UnitCost).toFixed(2)
+                    //i = i.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                    //s = $("#UnitCost").val() * $("#Quantity").val();
+                    //num = isNaN(parseInt(s)) ? parseFloat(0).toFixed(2) : parseFloat(s).toFixed(2)
+                    //$('#UnitCost').val(i);
+                    //$('#Amount').val(num);
+
+                    i = parseFloat(responsedate[0].UnitCost).toFixed(2)
+                    $('#UnitCost').val(i);
+                    s = $("#UnitCost").val() * $("#Quantity").val();
+                    i = i.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                    $('#UnitCost').val(i);
+                    num = isNaN(parseInt(s)) ? parseFloat(0).toFixed(2) : parseFloat(s).toFixed(2)
+                    num = num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                    $('#Amount').val(num);
+
+                }
+            }
+            })
+        });
+        $("#PO").on('change', function () {
+            if (ajaxInProgress) {
+                ajaxInProgress = false;
+                return;
+            }
+            $.ajax({
+                url: "@Url.Action("GetPODetails", "ItemDetail")"
+            , method: "GET"
+            , dataType: 'json'
+            , data: { afid: $("#ItemID option:selected").val(), po: $("#PO option:selected").text() }
+            , success: function (responsedate) {
+                ajaxInProgress = true;
+                if (!$.trim(responsedate)) {
+                    $('#UoM').val("");
+                    $('#PropertyNo').val("");
+                    $('#SerialNo').val("").trigger('change');
+                    $('#FACardNo').val("").trigger('change');
+                    i = parseFloat(0).toFixed(2)
+                    $('#UnitCost').val(i);
+                    s = $("#UnitCost").val() * $("#Quantity").val();
+                    num = isNaN(parseInt(s)) ? parseFloat(0).toFixed(2) : parseFloat(s).toFixed(2)
+                    $('#Amount').val(num);
+
+                }
+                else {
+                    dataVal = $("#ItemID option:selected").val();
+                    strurl_s = "@Url.Action("SearchItemSerial_Json", "ItemDetail", new { transtype = "Credit" })" + "&id=" + encodeURIComponent(dataVal)
+                    $('#SerialNo').empty();
+                    $("#SerialNo").append(new Option("", ""));
+                    $("#SerialNo").append(new Option(responsedate[0].SerialNo, responsedate[0].SerialNo));
+                    $('#SerialNo').select2({
+                        theme: "bootstrap",
+                        width: '100%',
+                        //minimumInputLength: 1,
+                        placeholder: '',
+                        allowClear: true,
+                        ajax: {
+                            url: strurl_s.replace(/&amp;/g, '&'),
+                            dataType: 'json',
+                            delay: 300,
+                            data: function (params) {
+                                return {
+                                    q: params.term, // search term
+                                    page: params.page
+                                };
+                            },
+                            processResults: function (data, page) {
+                                return {
+                                    results: data.items
+                                };
+                            },
+                            cache: false
+                        },
+                    }).val(responsedate[0].SerialNo).trigger('change');
+
+                    $('#UoM').val(responsedate[0].UOM);
+                    $('#PropertyNo').val(responsedate[0].PropertyNo);
+                    $('#FACardNo').val(responsedate[0].FACardNo);
+
+                    i = parseFloat(responsedate[0].UnitCost).toFixed(2)
+                    $('#UnitCost').val(i);
+                    s = $("#UnitCost").val() * $("#Quantity").val();
+                    i = i.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                    $('#UnitCost').val(i);
+                    num = isNaN(parseInt(s)) ? parseFloat(0).toFixed(2) : parseFloat(s).toFixed(2)
+                    num = num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                    $('#Amount').val(num);
+                }
+            }
+            })
+        });
+        var ajaxInProgress = false;
+        $('#Save').click(function () {
+            var qty = parseInt($('#Quantity').val());
+            var tqty = parseInt($('#Inventory').val())
+
+
+            clearalerts();
+
+            if (method == "store") {
+                if (qty > tqty) {
+                    $("#alertbox-error-issue")[0].style.display = "block";
+                    document.getElementById("statmessage").innerHTML = "Cannot proceed. Quantity is greater than Total Inventory.";
+                    return false;
+                }
+
+                $.ajax({
+                    url: "@Url.Action("CreateAFFADetails", "AFFAIssue", new { transtype = "na" })" + "&unitcost_formatted=" + encodeURIComponent($('#UnitCost').val())
+            , method: "POST"
+            , dataType: 'json'
+            , data: $('#frm').serialize()
+            , success: function (responsedate) {
+                if (responsedate.status == "success") {
+                    $("#alertbox-issue")[0].style.display = "block";
+                    $('#table').bootstrapTable('refresh', {
+                    });
+                    method = "store"
+                    cleartext();
+                    $('#DateIssued').val(GetFormattedDate());
+                } else {
+                    $("#alertbox-error-issue")[0].style.display = "block";
+                    document.getElementById("statmessage").innerHTML = responsedate.message;
+                }
+            }
+                });
+            } else {
+                $.ajax({
+                    url: "@Url.Action("EditAFFADetails", "AFFAIssue", new { transtype = "na" })" + "&unitcost_formatted=" + encodeURIComponent($('#UnitCost').val())
+                , method: "POST"
+                , dataType: 'json'
+                , data: $('#frm').serialize()
+                , success: function (responsedate) {
+                    if (responsedate.status == "success") {
+                        $("#alertbox-issue")[0].style.display = "block";
+                        $('#table').bootstrapTable('refresh', {
+                        });
+                        $('.def').prop('disabled', true);
+                    } else {
+                        $("#alertbox-error-issue")[0].style.display = "block";
+                        document.getElementById("statmessage").innerHTML = responsedate.message;
+
+                    }
+                }
+                });
+            }
+
+
+        });
+
+
+
+        $('#SaveRet').click(function () {
+            $("#alertbox")[0].style.display = "none";
+            $("#alertbox-error")[0].style.display = "none";
+            if (method == "store") {
+                if (!retInit) {
+                    totalqty = selectedrow[0].Quantity - selectedrow[0].qtyret
+                    retInit = true;
+                }
+                totalqty = isNaN(parseInt(totalqty)) ? parseInt(0) : parseInt(totalqty)
+
+                if ($("#Quantity_R").val() > totalqty) {
+                    $("#alertbox-error")[0].style.display = "block";
+                    document.getElementById("statmessage_return").innerHTML = "Quantity returned is greater than allowable.";
+                    return false;
+                }
+
+
+
+                //------------------------------------ DISABLED AUTO-CLOSED 03/24/2018 -----------------------------
+                @*var x = isSelectedAll();
+                if ($("#Quantity_R").val() == totalqty) {
+                    if (x == "all") {
+                        x = "true";
+                    }
+                } else {
+                    x = "false"
+                }
+
+                if (x == "true") {
+
+                    $.ajax({
+                        url: "@Url.Action("ChangeDocumentStatus")"
+                    , method: "POST"
+                    , dataType: 'json'
+                    , data: { id: r_id, status: 2 }
+                    , success: function (responsedate) {
+                        if (responsedate.status == "success") {
+                            $.notify("<Strong>Success!</Strong> Document has been closed.", { type: 'success', placement: { align: 'center' } });
+                            location.reload();
+                        } else {
+                            $.notify("<Strong>Oops!</Strong> Something went wrong.", { type: 'danger', placement: { align: 'center' } });
+                        }
+                    }
+                        , error: function () {
+                            $.notify("<Strong>Oops!</Strong> Something went wrong.", { type: 'danger', placement: { align: 'center' } });
+                        }
+                    });
+
+                };*@
+                //------------------------------------ END DISABLED AUTO-CLOSED 03/24/2018 -----------------------------
+
+
+
+                //if (method == "store") {
+                $.ajax({
+                    url: "@Url.Action("CreateAF", "AFFAReturn")"
+                , method: "POST"
+                , dataType: 'json'
+                , data: $('#frmRet').serialize()
+                , success: function (responsedate) {
+                    if (responsedate.status == "success") {
+
+                        $table.bootstrapTable('refresh', {
+                        });
+
+
+                        var strurl = "@Url.Action("GetAFFAReturn", "AFFA", new { transtype = "Credit" })" + "&afid=" + encodeURIComponent($('#afissueid').val())
+                        $('#table2').bootstrapTable('refresh', {
+                            url: strurl.replace(/&amp;/g, '&')
+                        });
+
+                        $("#alertbox")[0].style.display = "block";
+                    } else {
+                        $("#alertbox-error")[0].style.display = "block";
+
+                    }
+                }
+            });
+            totalqty = totalqty - $('#Quantity_R').val();
+        } else {
+
+
+            $.ajax({
+                url: "@Url.Action("EditAF", "AFFAReturn")"
+                , method: "POST"
+                , dataType: 'json'
+                , data: $('#frmRet').serialize()
+                , success: function (responsedate) {
+                    if (responsedate.status == "success") {
+                        $table.bootstrapTable('refresh', {
+                        });
+                        var strurl = "@Url.Action("GetAFFAReturn", "AFFA", new { transtype = "Credit" })" + "&afid=" + encodeURIComponent($('#afissueid').val())
+                        $table2.bootstrapTable('refresh', {
+                            url: strurl.replace(/&amp;/g, '&')
+                        });
+                        $("#alertbox")[0].style.display = "block";
+                    } else {
+                        $("#alertbox-error")[0].style.display = "block";
+                    }
+                }
+            });
+        }
+
+
+        });
+        $("#UnitCost").blur(function () {
+
+
+            var currency = $("#UnitCost").val();
+            s = Number(currency.replace(/[^0-9\.]+/g, "")) * $("#Quantity").val();
+            num = isNaN(parseInt(s)) ? parseFloat(0).toFixed(2) : parseFloat(s).toFixed(2)
+            num = num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+            $("#Amount").val(num);
+        });
+        $("#Quantity").blur(function () {
+
+            var currency = $("#UnitCost").val();
+            s = Number(currency.replace(/[^0-9\.]+/g, "")) * $("#Quantity").val();
+            num = isNaN(parseInt(s)) ? parseFloat(0).toFixed(2) : parseFloat(s).toFixed(2)
+            num = num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+
+            $("#Amount").val(num);
+
+        });
+
+        $('#btnTransfer').click(function () {
+
+            if ($('#DesignationName2').val() == "") {
+                alert("Fill all details");
+                return false;
+            }
+            ttype = "Transfer";
+            selectedrow = $table.bootstrapTable('getSelections');
+            $('#afretid').val(selectedrow[0].id)
+
+            var text = "Do you want to transfer all selected row? <br/> <br/>" +
+                         "<strong>New Details</strong> <br/>" +
+                         "EAC No: '" + $('#FAAFNo2').val() + "'" + "<br/>" +
+                         "Employee Name: '" + $('#EmployeeID2 :selected').text() + "'" + "<br/>";
+
+            document.getElementById('message').innerHTML = text;
+            $('#confirmModal').modal('show');
+            $('#TransferModal').modal('hide');
+        });
+        $('#btnProceed').click(function () {
+            $.notify("Processing request. Please wait...", { type: 'warning', placement: { align: 'center' } });
+
+            if (ttype == "Credit") {
+                var ids = getIdSelections();
+                var data = '';
+                var i = 0;
+                var res = getIdSelections();
+                jQuery.each(res, function (index, value) {
+                    if (data == "") {
+                        data = value;
+                    } else {
+                        data = data + "," + value;
+                    }
+                    i++
+                });
+                $.ajax({
+                    url: "@Url.Action("Delete", "AFFAIssue")"
+                , method: "post"
+                , dataType: "json"
+                , data: { itemid: data }
+                , success: function (responseData) {
+                    if (responseData.message == "success") {
+                        $table.bootstrapTable('remove', {
+                            field: 'id',
+                            values: ids
+                        });
+                        $remove.prop('disabled', true);
+                        //var strurl = "@Url.Action("GetAFEmpDetails", "AFFA", new { afid = @ViewBag.ID, transtype = "Credit" })"
+                        $('#table').bootstrapTable('refresh', {
+                            //url: strurl.replace(/&amp;/g, '&')
+                        });
+
+                        $.notify("<strong>Success!</strong> Item/s Deleted", {
+                            type: 'success', placement: {
+                                align: 'center'
+                            }
+                        });
+                    } else {
+                        alert(responseData.message);
+                    }
+                }
+                });
+
+        } else if (ttype == "Debit") {
+            var ids = getIdSelections2();
+            var data = '';
+            var i = 0;
+            var res = getIdSelections2();
+            jQuery.each(res, function (index, value) {
+                if (data == "") {
+                    data = value;
+                } else {
+                    data = data + "," + value;
+                }
+                i++
+            });
+            $.ajax({
+                url: "@Url.Action("Delete", "AFFAReturn")"
+                , method: "post"
+                , dataType: "json"
+                , data: { itemid: data }
+                , success: function (responseData) {
+                    if (responseData.message == "success") {
+                        $table2.bootstrapTable('remove', {
+                            field: 'id',
+                            values: ids
+                        });
+                        $remove.prop('disabled', true);
+                        $table.bootstrapTable('refresh', {
+                        });
+
+                        $.notify("<strong>Success!</strong> Item/s Deleted", {
+                            type: 'success', placement: {
+                                align: 'center'
+                            }
+                        });
+                    } else {
+                        alert(responseData.message);
+                    }
+                }
+            });
+
+        } else if (ttype == "closeDoc") {
+            toggleClosed();
+            $.ajax({
+                url: "@Url.Action("ChangeDocumentStatus")"
+            , method: "POST"
+            , dataType: 'json'
+            , data: { id: r_id, status: 2 }
+            , success: function (responsedate) {
+                if (responsedate.status == "success") {
+                    $.notify("<Strong>Success!</Strong> Document has been closed.", { type: 'success', placement: { align: 'center' } });
+                } else {
+                    $.notify("<Strong>Oops!</Strong> Something went wrong.", { type: 'danger', placement: { align: 'center' } });
+                }
+            }
+                , error: function () {
+                    $.notify("<Strong>Oops!</Strong> Something went wrong.", { type: 'danger', placement: { align: 'center' } });
+                }
+            });
+        }
+        else if (ttype == "Post") {
+
+            // -------------------- NEW AUTO-CLOSED 03/24/2018 -----------------------------
+            var x = isSelectedAll2();
+            var allreturn = isAllHasReturned();
+                console.log(x);
+                console.log(allreturn);
+
+
+            if (allreturn) {
+                if (x == "all" || x == "true") {
+                    x = "true";
+                } else {
+                    x = "false"
+                }
+                
+                if (x == "true") {
+                    $.ajax({
+                        url: "@Url.Action("ChangeDocumentStatus")"
+                        , method: "POST"
+                        , dataType: 'json'
+                        , data: { id: r_id, status: 2 }
+                        , success: function (responsedate) {
+                            if (responsedate.status == "success") {
+                                $.notify("<Strong>Success!</Strong> Document has been closed.", { type: 'success', placement: { align: 'center' } });
+                                location.reload();
+                            } else {
+                                $.notify("<Strong>Oops!</Strong> Something went wrong.", { type: 'danger', placement: { align: 'center' } });
+                            }
+                        }
+                            , error: function () {
+                                $.notify("<Strong>Oops!</Strong> Something went wrong.", { type: 'danger', placement: { align: 'center' } });
+                            }
+                    });
+
+                };
+            }
+            // ----------------------------- END ------------------------------------------
+
+
+            var ids = getIdSelections2();
+            var data = '';
+            var i = 0;
+            var res = getIdSelections2();
+            jQuery.each(res, function (index, value) {
+                if (data == "") {
+                    data = value;
+                } else {
+                    data = data + "," + value;
+                }
+                i++
+            });
+            $.ajax({
+                url: "@Url.Action("Post", "AFFAReturn")"
+                , method: "post"
+                , dataType: "json"
+                , data: { itemid: data }
+                , success: function (responseData) {
+                    if (responseData.message == "success") {
+                        $remove.prop('disabled', true);
+                        $table2.bootstrapTable('refresh', {
+                        });
+
+                        $.notify("Item/s Posted", {
+                            type: 'success', placement: {
+                                align: 'center'
+                            }
+                        });
+                    } else {
+                        alert(responseData.message);
+                    }
+                }
+            });
+        }
+        else {
+            var ids = getIdSelections();
+            var data = '';
+            var i = 0;
+            var res = getIdSelections();
+            var x = isSelectedAll();
+
+            jQuery.each(res, function (index, value) {
+                if (data == "") {
+                    data = value;
+                } else {
+                    data = data + "," + value;
+                }
+                i++
+            });
+
+            //if (x == "true") {
+            //    toggleClosed();
+            //}
+
+
+
+            var rowcount = $('#table').bootstrapTable('getData').length;
+            if (rowcount == 1) {
+                x = "true";
+                toggleClosed();
+            } else {
+                if (x == "true" || x == "all") {
+                    toggleClosed();
+                }
+            };
+
+            //console.log(rowcount);
+            //console.log(x);
+
+            var frmeac = $('#FAAFNo').val();
+            var fa = $('#FAAFNo2').val();
+            var empid = $('#EmployeeID2').val();
+            var strurl = "@Url.Action("TransferFA", "AFFAIssue", new { transtype = "Credit" })" + "&FAAFNo=" + encodeURIComponent(fa) + "&EmployeeID=" + encodeURIComponent(empid) + "&F_FAAFNo=" + encodeURIComponent(frmeac)
+            $.ajax({
+                url: strurl
+                , method: "post"
+                , dataType: "json"
+                , data: { itemid: data, transAll: x }
+                , success: function (responsedata) {
+                    $.notify("<strong>Success!</strong> Item/s transferred", {
+                        type: 'success', placement: {
+                            align: 'center'
+                        }
+                    });
+                    $table.bootstrapTable('refresh', {});
+                    $remove.prop('disabled', true);
+                    location.reload();
+                }
+                , error: function () {
+                    $.notify("<strong>Failed!</strong> Something went wrong.Transfer failed", {
+                        type: 'danger', placement: {
+                            align: 'center'
+                        }
+                    });
+                }
+            });
+        }
+        });
+        $("#ToolStatus").select2({
+            width: "100%",
+            theme: "bootstrap"
+        });
+        $("#ToolStatus_A").select2({
+            width: "100%",
+            theme: "bootstrap"
+        });
+        $("#Recommendation").select2({
+            width: "100%",
+            theme: "bootstrap"
+        });
+        $("#Recommendation2").select2({
+            width: "100%",
+            theme: "bootstrap"
+        });
+        $("#FindingsObservation").select2({
+            width: "100%",
+            theme: "bootstrap"
+        });
+        $("#FindingsObservation_2").select2({
+            width: "100%",
+            theme: "bootstrap"
+        });
+        $("#btnReturnAll").click(function () {
+       
+            var ids = getIdSelections();
+            var data = '';
+            var i = 0;
+            var res = getIdSelections();
+            var x = isSelectedAll();
+
+            jQuery.each(res, function (index, value) {
+                if (data == "") {
+                    data = value;
+                } else {
+                    data = data + "," + value;
+                }
+                i++
+            });
+
+            console.log(data);
+
+            $.ajax({
+                url: "@Url.Action("ReturnAll", "AFFAReturn")"
+            , method: "POST"
+            , dataType: 'json'
+            , data: {
+                itemid: data, DateReturned: $('#DateReturn_A').val()
+                , ToolStatus: $('#ToolStatus_A').val()
+                , Remarks: $('#Remarks_R_A').val()
+                , FAARFNo: $('#FAARFNo_ra').val()
+                , Recommendation: $('#Recommendation2').val()
+            }
+            , success: function (responsedate) {
+                if (responsedate.status == "success") {
+                    $("#alertbox-return")[0].style.display = "block";
+                    $table.bootstrapTable('refresh', {});
+                } else {
+                    $("#alertbox-return-error")[0].style.display = "block";
+                }
+            }
+            , error: function () {
+                $.notify("<Strong>Oops!</Strong> Something went wrong.", { type: 'danger', placement: { align: 'center' } });
+            }
+            });
+        });
+        $("#btnMultipleReturn").click(function () {
+            var cnt = $('#tblReturn > tbody > tr').length;
+            var items = [];
+
+
+
+            for (var i = 0; i < cnt; i++) {
+                var dateret_id = $('#tblReturn> tbody > tr:eq(' + i + ')').find('td:eq(6)').find('input').prop('id')
+                var sel = $('#tblReturn> tbody > tr:eq(' + i + ')').find('td:eq(7)').find('select')
+                var selRec = $('#tblReturn> tbody > tr:eq(' + i + ')').find('td:eq(8)').find('select')
+                var selFin = $('#tblReturn> tbody > tr:eq(' + i + ')').find('td:eq(9)').find('select')
+                if (parseInt($('#tblReturn> tbody > tr:eq(' + i + ')').find('td:eq(5)').text()) > parseInt($('#tblReturn> tbody > tr:eq(' + i + ')').find('td:eq(4)').text())) {
+                    alert("Cannot proceed. Qty Returned cannot be greater than issued qty. Please check Item Code " + $('#tblReturn> tbody > tr:eq(' + i + ')').find('td:eq(2)').text() + " on row " + (i + 1));
+                    return false;
+                }
+                var obj = {
+                    rowid: $('#tblReturn> tbody > tr:eq(' + i + ')').find('td:eq(0)').text(),
+                    refno: $('#tblReturn> tbody > tr:eq(' + i + ')').find('td:eq(1)').text(),
+                    qty: $('#tblReturn> tbody > tr:eq(' + i + ')').find('td:eq(4)').text(),
+                    qtyreturn: $('#tblReturn> tbody > tr:eq(' + i + ')').find('td:eq(5)').text(),
+                    datereturned: $('#' + dateret_id).val(),
+                    toolstatus: $("option:selected", sel).val(),
+                    recstatus: $("option:selected", selRec).val(),
+                    finstatus: $("option:selected", selFin).val(),
+                    remarks: $('#tblReturn> tbody > tr:eq(' + i + ')').find('td:eq(10)').text(),
+                    faarfno : $("#FAARFNo_ri").val()
+                };
+                items.push(obj)
+            }
+
+          
+
+
+            $.ajax({
+                url: "@Url.Action("ReturnMultiple","AFFAReturn")"
+                                , method: "POST"
+                                , dataType: 'json'
+                                , data: { returnitems: items }
+                                , success: function (responsedata) {
+                                    if (responsedata.status == "success") {
+                                        $.notify({
+                                            title: '<strong>Success!</strong>',
+                                            message: responsedata.message
+                                        }, {
+                                            type: 'success'
+                                                    , placement: { align: 'center' }
+                                        });
+                                        $table.bootstrapTable('refresh', {});
+
+
+                                    } else {
+                                        $.notify({
+                                            title: '<strong>Oops Something went wrong!</strong>',
+                                            message: responsedata.message
+                                        }, {
+                                            type: 'danger'
+                                            , placement: { align: 'center' }
+                                        });
+                                    }
+                                }
+            });
+          });
+
+    });
+</script>

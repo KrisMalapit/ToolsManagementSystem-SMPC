@@ -1,0 +1,216 @@
+﻿@model ToolsManagementSystem.Models.AFFA
+
+@{
+    ViewBag.Title = "Create";
+}
+<style>
+    #tbl th {
+        background-color: teal;
+        color: white;
+    }
+</style>
+<h3>Create</h3>
+
+<div class="col-md-12 entrytype" id="divIndividual">
+
+    @Html.AntiForgeryToken()
+    
+    <div class="form-horizontal">
+        <hr />
+        @Html.ValidationSummary(true)
+        <input id="TransType" name="TransType" hidden />
+        <div class="form-group">
+            @Html.Label("Employee Name", new { @class = "custom_control-label col-md-2" })
+            <div class="col-md-4">
+                <select class="form-control input-sm" id="EmployeeID" name="EmployeeID">
+                    <option>Select Employee </option>
+                </select>
+                @Html.ValidationMessageFor(model => model.EmployeeID)
+
+            </div>
+            @*@Html.Label("Designation Name", new { @class = "custom_control-label col-md-2" })
+            <div class="col-md-4">
+                @Html.TextBox("DesignationName", null, new { @class = "form-control", @readonly = "readonly" })
+            </div>*@
+            @Html.Label("Department Name", new { @class = "custom_control-label col-md-2" })
+            <div class="col-md-4">
+                @Html.TextBox("DepartmentName", null, new { @class = "form-control", @readonly = "readonly" })
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.Label("Employee No", new { @class = "custom_control-label col-md-2" })
+            <div class="col-md-4">
+                @Html.TextBox("EmployeeNo", null, new { @class = "form-control", @readonly = "readonly" })
+            </div>
+            @Html.Label("GroupName", new { @class = "custom_column-label col-md-2 group" })
+            <div class="col-md-4 group">
+                @Html.TextBox("GroupName", null, new { @class = "form-control group", @readonly = "readonly" })
+            </div>
+        </div>
+
+        <br />
+        <br />
+
+        <h4>Accountable</h4>
+        <table class="table table-striped" id="tbl">
+            <thead>
+                <tr>
+                    <th>EmpID</th>
+                    <th style="width:15%">Employee ID</th>
+                    <th style="width:25%">Name</th>
+                    <th style="width:25%">Department Name</th>
+                    <th style="width:25%">Designation</th>
+                    <th style="width:10%">Action</th>
+                </tr>
+            </thead>
+
+            <tbody></tbody>
+
+
+        </table>
+
+        <div class="form-group">
+            <input type="button" value="Create" id="btnCreate" class="btn btn-default" style="float: right;" />
+        </div>
+    </div>
+
+</div>
+
+<div class="col-md-12" >
+    @if (ViewBag.ReturnUrl != "whIndex")
+    {
+        @Html.ActionLink("Back to List", "Index")
+    }
+    else
+    {
+        @Html.ActionLink("Back to List", "Index_Warehouse")
+    }
+    
+</div>
+<script>
+    window.onload = loadme;
+   $("#btnCreate").click(function () {
+        if ($('#Purpose').val() == "") {
+            alert("Please fill out purpose");
+            return false;
+        }
+
+        $transtype = "Individual";
+        var arry = [];
+        var rowCount = $('table#tbl tbody>tr:last').index() + 1;
+        if (rowCount==0) {
+            alert("No record to be save");
+            return false;
+        }
+
+
+        $('#tbl tbody>tr').each(function (a, b) {
+            var $tds = $(this).find('td')
+            var obj = {
+                EmployeeID: $tds.eq(0).text(),
+            };
+            arry.push(obj);
+        });
+
+
+        if (rowCount ==1) {
+            $transtype = "Individual";
+
+        }
+        if (rowCount > 1) {
+            $transtype = "Group";
+
+        }
+        $.ajax({
+                url: "@Url.Action("Create")"
+                , method: "POST"
+                , dataType: 'json'
+                , data: { trans: $transtype, _arry: arry, _purpose: $('#Purpose').val()}
+                , success: function (responsedata) {
+                    if (responsedata.status == "success") {
+                        var redirectWindow = window.open("@Url.Action("Edit")?id=" + responsedata.message,'_self');
+                        redirectWindow.location;
+                    } else {
+                        alert(responsedata.message);
+                    }
+                }
+        });
+    });
+    function remove($row) {
+
+        console.log($($row).closest('tr'))
+        $($row).closest('tr').remove();
+
+
+    };
+    function loadme() {
+        $('#EmployeeNo').val("");
+        $('#DesignationName').val("");
+        $('#DepartmentName').val("");
+    }
+
+
+
+
+    $("#EmployeeID").select2({
+        theme: "bootstrap",
+        closeOnSelect: false,
+        ajax: {
+            url: "@Url.Action("SearchEmployee_Json", "Employee")?UserID=@ViewBag.UserID",
+                dataType: 'json',
+                delay: 300,
+                data: function (params) {
+                    return {
+                        q: params.term, // search term
+                        page: params.page
+                    };
+                },
+                processResults: function (data, page) {
+                    return {
+                        results: data.items
+                    };
+                },
+                cache: false
+            },
+         //minimumInputLength: 1
+     });
+        $("#EmployeeID").on('change', function () {
+            $.ajax({
+                url: "@Url.Action("GetEmpDetails","AFBorrower")"
+                , method: "GET"
+                , dataType: 'json'
+                , data: { id: $(this).val() }
+                , success: function (responsedate) {
+                    if (responsedate.status == "success") {
+                        $('#EmployeeNo').val(responsedate.EmployeeNo);
+                        $('#DesignationName').val(responsedate.Designations);
+                        $('#DepartmentName').val(responsedate.Departments);
+                        $('#GroupName').val(responsedate.GroupName);
+
+                        var search = responsedate.EmployeeNo;
+
+                        $("#tbl tr td").filter(function () {
+                            return $(this).text() == search;
+                        }).parent('tr').remove();
+                        var $row = $('<tr>' +
+                            '<td>' + $("#EmployeeID").val() + '</td>' +
+                            '<td>' + responsedate.EmployeeNo + '</td>' +
+                            '<td>' + $("#EmployeeID option:selected").text() + '</td>' +
+                            '<td>' + responsedate.Departments + '</td>' +
+                            '<td>' + responsedate.Designations + '</td>' +
+                            '<td><input type="button" class=" btn-danger" onclick="remove(this)" value="Delete"></input></td>' +
+                            '</tr>');
+
+                        $('table> tbody:last').append($row);
+
+
+
+                    } else {
+                        alert("Fail!");
+                    }
+                }
+            });
+        })
+    
+   
+</script>

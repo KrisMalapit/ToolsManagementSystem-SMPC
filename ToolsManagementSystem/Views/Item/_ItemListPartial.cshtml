@@ -1,0 +1,225 @@
+﻿@*@model PagedList.IPagedList<ToolsManagementSystem.Models.View_Model.ItemViewModel>
+@using PagedList.Mvc;
+
+
+
+<table class="table table-striped table-bordered sortable" id="tblItems">
+    <tr>
+        <th>Item Code
+        </th>
+        <th>Description
+        </th>
+        <th>Description 2
+        </th>
+        <th style="text-align: center">Inventory
+        </th>
+        <th style="text-align: center">Shelf No
+        </th>
+        <th style="text-align: center">Category
+        </th>
+        <th style="text-align: center">Equipment Type
+        </th>
+        <th style="text-align: center">Blocked
+        </th>
+         @if (!User.IsInRole("User") && !User.IsInRole("Warehouse_Staff"))
+         { 
+            <th></th>
+         }
+    </tr>
+
+    @foreach (var item in ViewBag.ItemList)
+    {
+        <tr>
+            <td>
+                @item.ItemCode
+            </td>
+            <td>
+                @item.Description
+            </td>
+            <td>
+                @item.Description2
+            </td>
+            <td style="text-align: right">
+                @if (!User.IsInRole("User")) { 
+                  <a href='Item/ItemTracking/@item.id'>@item.Inventory</a>   
+                }
+                else
+                {
+                     @item.Inventory
+                }
+                
+
+            </td>
+
+
+            <td style="text-align: right">
+                @item.ShelfNo
+            </td>
+            <td style="text-align: right">
+                @item.Category
+            </td>
+             <td style="text-align: right">
+                @item.EquipmentType
+            </td>
+            <td style="text-align: center">
+                @if (item.Status == "Active")
+                {
+                    @Html.CheckBox("Status", false, new { @disabled = "true" })
+                }
+                else
+                {
+                    @Html.CheckBox("Status", true, new { @disabled = "true" })
+                }
+            </td>
+             @if (!User.IsInRole("User") && !User.IsInRole("Warehouse_Staff"))
+             { 
+                <td>
+                    @Html.ActionLink("View", "Details", new { id = item.id })
+                </td>
+             }
+        </tr>
+    }
+
+
+
+</table>
+
+
+Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
+
+@Html.PagedListPager(Model, page => Url.Action("Index",
+    new { page, sortOrder = ViewBag.CurrentSort, currentFilter = ViewBag.CurrentFilter, searchString=ViewBag.SearchStr }))*@
+
+
+
+@{
+    ViewBag.Title = "Item List";
+}
+
+<style>
+    tfoot input {
+        width: 100%;
+        padding: 3px;
+        box-sizing: border-box;
+    }
+</style>
+
+
+
+<h3>Item List</h3>
+@if (!User.IsInRole("User"))
+{ 
+    <div class="col-md-12">
+        <div class="form-group">
+            <i class="glyphicon glyphicon-plus"></i>@Html.ActionLink(" Create New", "Create")
+        </div>
+    </div>
+}
+
+<table id="tbl" class="display" style="width: 100%">
+    <thead>
+        <tr>
+            <th>Item Code</th>
+            <th>Description</th>
+            <th>Description2</th>
+            <th>Inventory</th>
+            <th>Shelf No</th>
+            <th>Category </th>
+            <th>Equipment Type</th>
+            <th>Blocked</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tfoot>
+       <tr>
+            <th>Item Code</th>
+            <th>Description</th>
+            <th>Description2</th>
+            <th>Inventory</th>
+            <th>Shelf No</th>
+            <th>Category </th>
+            <th>Equipment Type</th>
+            <th>Blocked</th>
+            <th>ID</th>
+        </tr>
+    </tfoot>
+</table>
+
+<script>
+    $(function () {
+        $("#datepicker").datepicker();
+    });
+
+
+    $('#tbl tfoot th').each(function () {
+        var title = $(this).text();
+        
+        if (title == "ID") {
+            $(this).html('');
+        } else {
+            if (title === "Date Created") {
+                $(this).html('<input type="text" id="datepicker" placeholder="Search ' + title + '" />');
+            } else {
+
+                    $(this).html('<input type="text" placeholder="Search ' + title + '" />');
+
+                
+            }
+        }
+
+    });
+    var table = $('#tbl').DataTable({
+        "processing": true,
+        "serverSide": true,
+        "info": true,
+        "lengthMenu": [[10, 20, 50, -1], [10, 20, 50, "All"]],
+        "ajax": {
+            "url": "@Url.Action("indexData", "Item", new { noCols = 7 })",
+                "type": "POST"
+            },
+            "columns": [
+
+                { "data": "ItemCode", "orderable": true },
+                { "data": "Description", "orderable": true },
+                { "data": "Description2", "orderable": true },
+                { "data": "Inventory", "orderable": true },
+                { "data": "ShelfNo", "orderable": true },
+                { "data": "Category", "orderable": true },
+                { "data": "EquipmentType", "orderable": true },
+                { "data": "Blocked", "orderable": true },
+                {
+                    "data": "id"
+                    , "orderable": true
+                    , "render": function (value) {
+                        var $newLinkTarget = '<a href="@Url.Action("Edit")?id=' + value + '">View</a>';
+                        return $newLinkTarget;
+                    }
+                }
+
+            ],
+            "order": [[0, "asc"]]
+        });
+
+
+                // Apply the search
+                table.columns().every(function () {
+                    var that = this;
+                    $('input', this.footer()).on('keyup change', function () {
+                        if (that.search() !== this.value) {
+                            that
+                                .search(this.value)
+                                .draw();
+                        }
+                    });
+                });
+
+
+
+
+
+
+
+</script>
+
+
+

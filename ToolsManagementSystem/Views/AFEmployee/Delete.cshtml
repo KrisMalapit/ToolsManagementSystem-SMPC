@@ -1,0 +1,65 @@
+﻿@model ToolsManagementSystem.Models.AFEmployee
+
+@{
+    ViewBag.Title = "Delete";
+}
+
+<h2>Delete</h2>
+
+<h3>Are you sure you want to delete this?</h3>
+<div>
+
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.EACNo)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.EACNo)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.EmployeeID)
+        </dt>
+
+        <dd>
+@*            @Html.DisplayFor(model => model.EmployeeID)*@
+            @Html.DisplayFor(model => model.Employees.LastName), @Html.DisplayFor(model => model.Employees.FirstName)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Employees.EmpId)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Employees.EmpId)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Employees.Designations.Name)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Employees.Designations.Name)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Employees.Departments.Name)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Employees.Departments.Name)
+        </dd>
+
+    </dl>
+
+    @using (Html.BeginForm()) {
+        @Html.AntiForgeryToken()
+
+        <div class="form-actions no-color">
+            <input type="submit" value="Delete" class="btn btn-default" /> |
+            @Html.ActionLink("Back to List", "Index")
+        </div>
+    }
+</div>

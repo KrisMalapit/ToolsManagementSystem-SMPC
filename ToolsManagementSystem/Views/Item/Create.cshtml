@@ -1,0 +1,193 @@
+﻿@model ToolsManagementSystem.Models.Item
+
+@{
+    ViewBag.Title = "Create";
+}
+
+<h2>Create</h2>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    
+    <div class="form-horizontal">
+        <h4>Item</h4>
+        <hr />
+        @Html.ValidationSummary(true)
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.ItemCode, new { @class = "custom_control-label col-md-2" })
+            <div class="col-md-4">
+                @Html.TextBoxFor(model => model.ItemCode, new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.ItemCode)
+            </div>
+            @Html.LabelFor(model => model.ShelfNo, new { @class = "custom_control-label col-md-2" })
+            <div class="col-md-4">
+                @Html.TextBoxFor(model => model.ShelfNo, new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.ShelfNo)
+            </div>
+
+
+            @*@Html.LabelFor(model => model.EquipmentType, new { @class = "custom_control-label col-md-2" })
+            <div class="col-md-2">
+                
+                    <select id="EquipmentType" name="EquipmentType">
+                        <option value=""></option>
+                    </select>
+                
+            </div>*@
+
+            
+
+
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Description, new { @class = "custom_control-label col-md-2" })
+            <div class="col-md-4">
+                @Html.TextBoxFor(model => model.Description, new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.Description)
+            </div>
+
+            @*@Html.LabelFor(m => m.Category, new { @class = "custom_control-label col-md-2" })
+        <div class="col-md-4">
+            @Html.DropDownListFor(m => m.Category,
+                                    new SelectList(Enum.GetValues(typeof(ToolsManagementSystem.Models.View_Model.CategoryType)), ""), new { @class = "form-control" })
+            @Html.ValidationMessageFor(m => m.Category, "", new { @class = "text-danger" })
+        </div>*@
+            @Html.LabelFor(model => model.Location, new { @class = "custom_control-label col-md-2" })
+            <div class="col-md-4">
+                @Html.TextBoxFor(model => model.Location, new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.Location)
+            </div>
+
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Description2, new { @class = "custom_control-label col-md-2" })
+            <div class="col-md-4">
+
+                @Html.TextBoxFor(model => model.Description2, new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.Description2)
+            </div>
+            @Html.LabelFor(model => model.UOM, new { @class = "custom_control-label col-md-2" })
+            <div class="col-md-4">
+                <select id="UOM" name="UOM">
+                    <option value=""></option>
+                </select>
+            </div>
+
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.ModelType, new { @class = "custom_control-label col-md-2" })
+            <div class="col-md-4">
+
+                @Html.TextBoxFor(model => model.ModelType, new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.ModelType)
+            </div>
+
+            
+        </div>
+
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Create" class="btn btn-default" />
+            </div>
+        </div>
+    </div>
+}
+
+<div>
+    @Html.ActionLink("Back to List", "Index")
+</div>
+<script>
+@*    $('#UOM').select2({
+        width: '100%',
+        theme: 'bootstrap',
+        ajax: {
+            url: "@Url.Action("SearchItem_UoM", "Item")",
+                    dataType: 'json',
+                    delay: 300,
+                    data: function (params) {
+                        return {
+                            q: params.term, // search term
+                            page: params.page
+                        };
+                    },
+                    processResults: function (data, page) {
+                        return {
+                            results: data.items
+                        };
+                    },
+                    cache: false
+                },
+         minimumInputLength: 1,
+    });*@
+
+    $("#UOM").select2({
+        width: '100%',
+        theme: 'bootstrap',
+        minimumInputLength: 1,
+        placeholder: '',
+        allowClear: true,
+        ajax: {
+            url: "@Url.Action("SearchItem_UoM", "Item")",
+            dataType: 'json',
+            delay: 300,
+            data: function (params) {
+                return {
+                    q: params.term, // search term
+                    page: params.page
+                };
+            },
+            processResults: function (data, page) {
+                return {
+                    results: data.items
+                };
+            },
+            cache: false
+        }
+    }).val('1').trigger('change');
+
+
+    @*$("#EquipmentType").select2({
+        width: '100%',
+        theme: 'bootstrap',
+        minimumInputLength: 1,
+        placeholder: '',
+        allowClear: true,
+        ajax: {
+            url: "@Url.Action("SearchItem_EquipmentType", "Item")",
+            dataType: 'json',
+            delay: 300,
+            data: function (params) {
+                return {
+                    q: params.term, // search term
+                    page: params.page
+                };
+            },
+            processResults: function (data, page) {
+                return {
+                    results: data.items
+                };
+            },
+            cache: false
+        }
+    }).val('1').trigger('change');*@
+
+
+
+    $('#Category').select2({
+
+        placeholder: "Select",
+        width: '100%',
+        theme: 'bootstrap',
+
+        //tags: "true",
+        //placeholder: "Select an option",
+        //allowClear: true
+
+    });
+</script>

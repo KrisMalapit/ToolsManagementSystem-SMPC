@@ -1,0 +1,312 @@
+﻿@model ToolsManagementSystem.Models.AFBorrower
+
+@{
+    ViewBag.Title = "Create";
+}
+
+<style>
+    #tbl th {
+        background-color: teal;
+        color: white;
+    }
+</style>
+<h3>Create</h3>
+
+<div class="col-md-12 entrytype" id="divIndividual">
+
+    @using (Html.BeginForm(null, null, FormMethod.Post, new { id = "frm" }))
+    {
+
+        @Html.AntiForgeryToken()
+
+        <input id="TransType" name="TransType" hidden />
+        <div class="form-horizontal">
+            <hr />
+            @Html.ValidationSummary(true)
+            <div class="form-group">
+                @Html.Label("Employee Name", new { @class = "custom_control-label col-md-2" })
+                <div class="col-md-4">
+                    <select class="form-control input-sm" id="EmployeeID" name="EmployeeID">
+                        <option>Select Employee </option>
+                    </select>
+                    @Html.ValidationMessageFor(model => model.EmployeeID)
+
+                </div>
+                @Html.Label("Employee No", new { @class = "custom_control-label col-md-2" })
+                <div class="col-md-4">
+                    @Html.TextBox("EmployeeNo", null, new { @class = "form-control", @readonly = "readonly" })
+                </div>
+            </div>
+            <div class="form-group">
+                @Html.Label("Purpose", new { @class = "custom_control-label col-md-2" })
+                <div class="col-md-4">
+                    @Html.TextBox("Purpose", null, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(model => model.Purpose)
+                </div>
+                @Html.Label("Designation Name", new { @class = "custom_control-label col-md-2" })
+                <div class="col-md-4">
+                    @Html.TextBox("DesignationName", null, new { @class = "form-control", @readonly = "readonly" })
+                </div>
+
+            </div>
+            <div class="form-group">
+                @Html.Label("Work Order", new { @class = "custom_control-label col-md-2" })
+                <div class="col-md-4">
+                    @Html.TextBox("WorkOrder", null, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(model => model.WorkOrder)
+                </div>
+
+                @Html.Label("Department Name", new { @class = "custom_control-label col-md-2" })
+                <div class="col-md-4">
+                    @Html.TextBox("DepartmentName", null, new { @class = "form-control", @readonly = "readonly" })
+                </div>
+            </div>
+            <div class="form-group">
+   
+                @Html.Label("Contractor", new { @class = "custom_control-label col-md-2" })
+                <div class="col-md-4 ">
+                    <select class="form-control input-sm" id="ContractorID" name="ContractorID">
+                        <option value="1">-N/A-</option>
+                    </select>
+                </div>
+                @Html.Label("Due Date", new { @class = "custom_control-label col-md-2" })
+                <div class="col-md-2">
+                    <div class='input-group date datepicker' id='DateDue'>
+                        <input name="DueDate" id="DueDate" type='text' class="form-control" tabindex=8 />
+                        <span class="input-group-addon">
+                            <span class="glyphicon glyphicon-calendar"></span>
+                        </span>
+                    </div>
+                </div>
+
+
+            </div>
+            
+        </div>
+    }
+
+
+    <br />
+    <br />
+
+    <h4>Accountable</h4>
+    <table class="table table-striped" id="tbl">
+        <thead>
+            <tr>
+                <th>EmpID</th>
+                <th style="width:15%">Employee ID</th>
+                <th style="width:25%">Name</th>
+                <th style="width:25%">Department Name</th>
+                <th style="width:25%">Designation</th>
+                <th style="width:10%">Action</th>
+            </tr>
+        </thead>
+
+        <tbody></tbody>
+
+
+    </table>
+
+    <div class="form-group">
+
+        <input type="button" value="Create" id="btnCreate" class="btn btn-default" style="float: right;" />
+
+    </div>
+</div>
+
+
+
+
+
+<div class="col-md-12">
+    @if (ViewBag.ReturnUrl != "whIndex")
+    {
+        @Html.ActionLink("Back to List", "Index")
+    }
+    else
+    {
+        @Html.ActionLink("Back to List", "Index_Warehouse")
+    }
+    
+</div>
+<script src="~/Content/scripts/moment.js"></script>
+<script src="~/Content/scripts/bootstrap-datetimepicker.min.js"></script>
+<script>
+    window.onload = loadme;
+    function GetFormattedDate() {
+        var currentDt = new Date();
+        var mm = currentDt.getMonth() + 1;
+        mm = (mm < 10) ? '0' + mm : mm
+        var dd = currentDt.getDate();
+        dd = (dd < 10) ? '0' + dd : dd
+        var yyyy = currentDt.getFullYear();
+        var date = mm + '/' + dd + '/' + yyyy;
+        return date;
+    }
+       $("#btnCreate").click(function () {
+        if ($('#Purpose').val() == "") {
+            alert("Please fill out purpose");
+            return false;
+        }
+
+        $transtype = "Individual";
+        var arry = [];
+        var rowCount = $('table#tbl tbody>tr:last').index() + 1;
+        if (rowCount==0) {
+            alert("No record to be save");
+            return false;
+        }
+
+
+        $('#tbl tbody>tr').each(function (a, b) {
+            var $tds = $(this).find('td')
+            var obj = {
+                EmployeeID: $tds.eq(0).text(),
+            };
+            arry.push(obj);
+        });
+
+
+        if (rowCount ==1) {
+            $transtype = "Individual";
+           
+        }
+        if (rowCount > 1) {
+            $transtype = "Group";
+            
+           }
+          
+           var $form = $('#frm');
+           //$data = "trans=" + $transtype  + "&arry=" + arry
+
+           $.ajax({
+               url: "@Url.Action("Create")"
+               , method: "POST"
+               , dataType: 'json'
+               , data: { arry: arry, trans: $transtype, purpose: $('#Purpose').val(), workorder: $('#WorkOrder').val(), conid: $('#ContractorID').val(), duedate: $('#DueDate').val()}
+               
+               , success: function (responsedata) {
+                   console.log(responsedata);
+                    if (responsedata.status == "success") {
+                        var redirectWindow = window.open("@Url.Action("Edit")?id=" + responsedata.message,'_self');
+                        redirectWindow.location;
+                    } else {
+                        alert(responsedata.message);
+                    }
+                }
+        });
+    });
+    function remove($row) {
+
+        console.log($($row).closest('tr'))
+        $($row).closest('tr').remove();
+
+
+    };
+
+
+
+    $('#DateDue').datetimepicker({
+        defaultDate: new Date(),
+        format: 'MM/DD/YYYY'
+    });
+    $('#DueDate').val(GetFormattedDate());
+    
+   
+    function loadme() {
+        $('#EmployeeNo').val("");
+        $('#DesignationName').val("");
+        $('#DepartmentName').val("");
+    }
+    $('#ContractorID').select2({
+        width: '100%',
+        theme: 'bootstrap',
+        minimumInputLength: 1,
+        placeholder: '',
+        allowClear: true,
+        ajax: {
+            url: "@Url.Action("SearchContractor_Json", "Contractor")",
+                dataType: 'json',
+                delay: 300,
+                data: function (params) {
+                    return {
+                        q: params.term, // search term
+                        page: params.page
+                    };
+                },
+                processResults: function (data, page) {
+                    return {
+                        results: data.items
+                    };
+                },
+                cache: false
+            },
+    });
+    
+    $("#EmployeeID").select2({
+        theme: "bootstrap",
+        closeOnSelect: false,
+        ajax: {
+            url: "@Url.Action("SearchEmployee_Json", "Employee")?UserID=@ViewBag.UserID",
+            dataType: 'json',
+            delay: 300,
+            data: function (params) {
+                return {
+                    q: params.term, // search term
+                    page: params.page
+                };
+            },
+            processResults: function (data, page) {
+                return {
+                    results: data.items
+                };
+            },
+            cache: false
+        },
+        //minimumInputLength: 1
+    });
+    $("#EmployeeID").on('change', function () {
+        $.ajax({
+            url: "@Url.Action("GetEmpDetails")"
+                , method: "GET"
+                , dataType: 'json'
+                , data: { id: $(this).val() }
+                , success: function (responsedate) {
+                    if (responsedate.status == "success") {
+                        $('#EmployeeNo').val(responsedate.EmployeeNo);
+                        $('#DesignationName').val(responsedate.Designations);
+                        $('#DepartmentName').val(responsedate.Departments);
+                        $('#GroupName').val(responsedate.GroupName);
+
+                        var search = responsedate.EmployeeNo;
+
+                        $("#tbl tr td").filter(function () {
+                            return $(this).text() == search;
+                        }).parent('tr').remove();
+                        var $row = $('<tr>' +
+                            '<td>' + $("#EmployeeID").val() + '</td>' +
+                            '<td>' + responsedate.EmployeeNo + '</td>' +
+                            '<td>' + $("#EmployeeID option:selected").text() + '</td>' +
+                            '<td>' + responsedate.Departments + '</td>' +
+                            '<td>' + responsedate.Designations + '</td>' +
+                            '<td><input type="button" class=" btn-danger" onclick="remove(this)" value="Delete"></input></td>' +
+                            '</tr>');
+
+                        $('table> tbody:last').append($row);
+
+
+                    } else {
+                        alert("Fail!");
+                    }
+                }
+            });
+        })
+           
+    $(function () {
+
+        $('#TransType').val("Individual");
+        $('.group').hide();
+        $("#radio1").prop("checked", true);
+    })
+
+</script>

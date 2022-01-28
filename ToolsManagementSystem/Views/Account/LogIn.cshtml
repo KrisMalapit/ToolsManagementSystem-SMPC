@@ -1,0 +1,90 @@
+﻿@using ToolsManagementSystem.Models.View_Model;
+
+@model LoginViewModel
+@{
+    ViewBag.Title = "LogIn";
+}
+
+<h2>Log-In</h2>
+
+
+
+
+@if (ViewBag.BrowserName != "Firefox")
+{
+
+    <div>
+        <p>
+            Notice : You are using <strong>@ViewBag.BrowserName</strong>  with Version-@ViewBag.BrowserVersion. This mean some functionality may not work as intended, please use <strong>Firefox</strong>  browser instead.
+            <br />
+
+        </p>
+
+    </div>
+   
+
+}
+
+
+
+
+<div id="row">
+    <div class="col-md-8">
+        <section id="loginform">
+            @using (Html.BeginForm("LogIn", "Account", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+            {
+                @Html.AntiForgeryToken()
+                @Html.ValidationSummary(true, "", new { @class = "text-danger" });
+
+                <div class="form-group">
+                    @Html.Label("Domain", new { @class = "col-md-2 custom_control-label" })
+                    <div class="col-md-4">
+                        <select class="form-control input-sm" id="Domain" name="Domain">
+                            @* <option value="SEMCALACA">SEMCALACA</option>*@
+                            <option value="SEMIRARAMINING">SEMIRARAMINING</option>
+                            <option value="SMCDACON">SMCDACON</option>
+
+
+                        </select>
+
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(m => m.Username, new { @class = "col-md-2 custom_control-label" })
+                    <div class="col-md-4">
+                        @Html.TextBoxFor(m => m.Username, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(m => m.Username, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(m => m.Password, new { @class = "col-md-2 custom_control-label" })
+                    <div class="col-md-4">
+                        @Html.TextBoxFor(m => m.Password, new { @class = "form-control", type = "password" })
+                        @Html.ValidationMessageFor(m => m.Password, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-md-offset-2 col-md-4">
+                        <div class="checkbox">
+                            @Html.CheckBoxFor(m => m.RememberMe)
+                            @Html.LabelFor(m => m.RememberMe)
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-md-offset-2 col-md-10">
+                        <input type="submit" value="Log in" class="btn btn-default" />
+                    </div>
+                </div>
+            }
+        </section>
+    </div>
+</div>
+
+<script>
+    $("#Domain").select2({
+        width: '100%',
+        theme: 'bootstrap'
+    });
+</script>
