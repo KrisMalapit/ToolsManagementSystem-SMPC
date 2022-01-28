@@ -280,45 +280,53 @@ namespace ToolsManagementSystem.Controllers
             int recordsTotal = 0;
             DateTime dval = new DateTime();
             Boolean hasDateIssued = false;
+            string strFilter = "";
 
+            //var draw = Request.Form["draw"].FirstOrDefault();
+            //var start = Request.Form["start"].FirstOrDefault();
+            //var length = Request.Form["length"].FirstOrDefault();
+            //var sortColumn = Request.Form["columns[" + Request.Form["order[0][column]"].FirstOrDefault() + "][name]"].FirstOrDefault();
+            var sortColumnDirection = Request.Form["order[0][dir]"].FirstOrDefault();
+            //var searchValue = Request.Form["search[value]"].FirstOrDefault();
+            //int pageSize = length != null ? Convert.ToInt32(length) : 0;
+            //int skip = start != null ? Convert.ToInt32(start) : 0;
+            //int recordsTotal = 0;
 
-            
-
-           // //--------   LEFT JOIN  -----------//
-           // var GroupMember = db.GroupAccountabilities
-           //          .GroupJoin(db.GroupAccountabilityMembers
-           //          , foo => foo.id
-           //          , bar => bar.GroupAccountabilityID,
-           //          (h, d) => new
-           //          {
-           //              GroupName = h,
-           //              Members = d
-           //          })
-           //          .SelectMany(
-           //               a => a.Members.DefaultIfEmpty(),
-           //              (a, y) => new
-           //              {
-           //                  EmployeeCode = a.GroupName.Code
-           //                  ,
-           //                  MemberName = y.Employees.LastName + "," + y.Employees.FirstName
-           //              }
-           //          );
-
-           // var qryGroupMembers = GroupMember.GroupBy(p => new
-           // {
-           //    p.EmployeeCode
-           // })
-           // .ToList()
-           //.Select(x => new
-           //{
-           //    EmpID = x.Key.EmployeeCode,
-           //    Member = String.Join(",", x.Select(c => c.MemberName))
-           //})
-           //;
+            for (int i = 0; i < noCols; i++)
+            {
+                string colval = Request.Form["columns[" + i + "][search][value]"];
+                if (colval != "")
+                {
+                    colval = colval.ToUpper();
+                    string colSearch = Request.Form["columns[" + i + "][name]"];
 
 
 
-            var v =
+                    if (strFilter == "")
+                    {
+
+                        strFilter = colSearch + ".ToString().ToUpper().Contains(" + "\"" + colval + "\"" + ")";
+
+                    }
+                    else
+                    {
+                        strFilter = strFilter + " && " + colSearch + ".ToString().ToUpper().Contains(" + "\"" + colval + "\"" + ")";
+                    }
+
+                }
+            }
+
+
+            if (strFilter == "")
+            {
+                strFilter = "true";
+            }
+
+
+
+
+
+            var _list =
                         db.AFBorrowerIssues
                         .Where(b => b.AFBorrowers.DocStatus != 0)
                         .Where(b => b.Status == "Active" || b.Status == "Transferred")
@@ -393,12 +401,7 @@ namespace ToolsManagementSystem.Controllers
                         Remarks = a.Remarks,
                         Contractor = "",
                         WorkOrder = "",
-                        //DateReturned = db.AFFAReturns
-                        //               .Where(c => c.DocStatus == 1)
-                        //               .Where(b => b.Status == "Active")
-                        //               .Where(b => b.AFFAIssueID == a.id)
-                        //               .Max(b => b.DateReturned),
-
+                 
                         ShelfNo = a.Items.ShelfNo,
                         DeptCode = a.AFFAs.Employees.Departments.Name,
                         Status = a.Status,
@@ -443,127 +446,88 @@ namespace ToolsManagementSystem.Controllers
                                         Contractor = "",
                                         WorkOrder = "",
 
-                                        //DateReturned = (DateTime?)db.AFEmployeeReturns
-                                        //               .Where(c => c.DocStatus == 1)
-                                        //               .Where(b => b.Status == "Active")
-                                        //               .Where(b => b.AFEmployeeIssueID == a.id)
-                                        //               .Max(b => b.DateReturned),
 
                                         ShelfNo = a.Items.ShelfNo,
                                         DeptCode = a.AFEmployees.Employees.Departments.Name,
                                         Status = a.Status,
                                         QtyTransferred = a.QuantityTransferred
                                     }
-                ))
-            ;
+                )).Where(strFilter);
 
-            recordsTotal = v.Count();
-            searchValue = searchValue.ToUpper();
-            if (!string.IsNullOrEmpty(searchValue))
-            {
-                v = v.Where(                                                                                                                                   a =>
-                    a.RefNo.ToUpper().Contains(searchValue)
-                    || a.EmployeeName.ToUpper().Contains(searchValue) 
-                    || a.Member.ToUpper().Contains(searchValue)
-                    || a.ItemCode.ToUpper().Contains(searchValue)
-                    || a.Description.ToUpper().Contains(searchValue)
-                    || a.Description2.ToUpper().Contains(searchValue)
-                    || a.Status.ToString().Contains(searchValue)
-                );
-            }
+            int recCount = _list.Count();
+            recordsTotal = recCount;
+            int recFilter = recCount;
 
-                string strFilter = "";
-                for (int i = 0; i < noCols; i++)
-                {
-                    string colval = Request["columns[" + i + "][search][value]"];
-                    if (colval != "")
-                    {
-                        colval = colval.ToUpper();
-                        string colSearch = Request["columns[" + i + "][data]"];
+            var v =_list
+             .OrderByDescending(a => a.RefNo)
+             //.Skip(skip).Take(pageSize)
+             .Select(a => new
+             {
+                 a.ItemID ,
+                 a.DateIssued,
+                 a.ItemCode,
+                 a.Description,
+                 a.Description2,
+                 a.PO,
+                 a.SerialNo,
+                 a.Qty,
 
-                        if (colSearch == "DateIssued")
-                        {
-                            dval = DateTime.Parse(colval);
-                            hasDateIssued = true;
-                        }
-                        else
-                        {
-                            //if (colSearch == "EmployeeName") 
-                            //{
-                            //    if (strFilter == "")
-                            //    {
-                            //        strFilter = "(EmployeeName" + ".ToUpper().Contains(" + "\"" + colval + "\"" + ")" + " || " + "Member" + ".ToUpper().Contains(" + "\"" + colval + "\"" + "))";
-                            //    }
-                            //    else {
-                            //        strFilter = strFilter + " && " + "(EmployeeName" + ".ToUpper().Contains(" + "\"" + colval + "\"" + ")" + " || " + "Member" + ".ToUpper().Contains(" + "\"" + colval + "\"" + "))";
-                            //    }
-                            //}
-                            //else {
-                                if (strFilter == "")
-                                {
-                                    if (colval == "*")
-                                    {
+                 a.QtyReturn,
 
-                                        strFilter = "(" + colSearch + " != \"" + "" + "\")";
-                                    }
-                                    else
-                                    {
-
-                                        strFilter = (colSearch != "Qty" && colSearch != "QtyReturn" && colSearch != "QtyTransferred" && colSearch != "UnitCost") ? colSearch + ".ToUpper().Contains(" + "\"" + colval + "\"" + ")" : "(" + colSearch + "=" + colval + ")";
-                                    }
-                                }
-                                else
-                                {
-                                    strFilter = (colSearch != "Qty" && colSearch != "QtyReturn" && colSearch != "QtyTransferred" && colSearch != "UnitCost") ? strFilter + " && " + colSearch + ".ToUpper().Contains(" + "\"" + colval + "\"" + ")" : strFilter + " && " + "(" + colSearch + "=" + colval + ")";
-                                }
-                            
-                            //}
-                            
-                        }
-                        if (strFilter != "")
-                        {
-                            v = v.Where(strFilter);
-                            var recList1 = v.ToList();
-                        }
-                    }
-                }
-                if (hasDateIssued)
-                {
-                    v = v.Where("DateIssued = @0", dval);
-                }
+                 a.UnitCost,
+                 a.UOM,
+                 a.RefNo,
+                 a.EmpID,
+                 a.EmployeeName,
+                 a.Member,
+                 a.Department,
+                 a.PropertyNo,
+                 a.Category,
+                 a.Remarks,
+                 a.Contractor,
+                 a.WorkOrder,
 
 
-            recordsFiltered = v.Count();
+                 a.ShelfNo,
+                 a.DeptCode,
+                 a.Status,
+                 a.QtyTransferred
+             });
 
-            if (!(string.IsNullOrEmpty(sortColumn) && string.IsNullOrEmpty(sortColumnDir)))
-            {
-                string col = Request["columns[" + sortColumn + "][data]"];
-                v = v.OrderBy(col + " " + sortColumnDir);
-            }
+
+            v = v.Skip(skip).Take(pageSize);
+
+            //var x = v.ToList();
+            //bool desc = false;
+            //if (sortColumnDirection == "desc")
+            //{
+            //    desc = true;
+            //}
+            //v = v.OrderBy(sortColumn + (desc ? " descending" : ""));
 
 
 
             if (pageSize < 0)
             {
-                pageSize = recordsFiltered;
+                pageSize = recordsTotal;
             }
+
             db.Database.CommandTimeout = 10000;
-            TempData.Remove("EmpSum");
-            TempData["EmpSum"] = v.ToList(); //to be used in printing
-            
-            var allEmployees = v.Skip(skip).Take(pageSize).ToList();
-
-
-            var model = new
-            {
-                draw = draw,
-                recordsFiltered = recordsFiltered,
-                recordsTotal = recordsTotal,
-                data = allEmployees
-            };
-
-
+            var data = v.OrderByDescending(a => a.RefNo);
+            var model = new { draw = draw, recordsFiltered = recFilter, recordsTotal = recordsTotal, data = data };
             return Json(model, JsonRequestBehavior.AllowGet);
+
+
+            //var model = new
+            //{
+            //    draw = draw,
+            //    recordsFiltered = recordsFiltered,
+            //    recordsTotal = recordsTotal,
+            //    data = allEmployees
+            //};
+
+
+            //return Json(model, JsonRequestBehavior.AllowGet);
         }
         public ActionResult printEmployeeSummary()
         {
